@@ -1,147 +1,194 @@
 @extends('layout.app')
 
 @section('content')
-<!-- Header Atas -->
-<div style="background-color:#3E2C1C; padding:10px 30px; border-bottom:3px solid #C9A646;">
-    <h2 style="color:#C9A646; font-family:'Poppins',sans-serif; font-weight:600; margin:0;">
-        {{ $title ?? 'Dashboard' }}
-    </h2>
+<style>
+/* === STYLE KHUSUS DASHBOARD === */
+.dashboard-header {
+    position: fixed;
+    top: 0;
+    left: 230px; /* biar nempel sama sidebar */
+    right: 0;
+    background-color: #3B2817; /* coklat tua */
+    color: #C9A646; /* emas */
+    font-weight: 600;
+    font-size: 26px;
+    padding: 15px 40px;
+    z-index: 1000;
+    letter-spacing: 1px;
+}
+
+.dashboard-content {
+    margin-left: 230px;
+    margin-top: 90px;
+    padding: 30px 60px;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+}
+
+.stat-boxes {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 50px;
+}
+
+.stat-box {
+    flex: 0 0 30%;
+    background: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+    border: 1px solid #ddd;
+    position: relative;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.stat-box::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 100%;
+    background-color: #3B2817;
+    border-radius: 10px 0 0 10px;
+}
+
+.stat-box h3 {
+    font-weight: 500;
+    color: #2c2c2c;
+    margin-bottom: 10px;
+}
+
+.stat-box p {
+    font-size: 22px;
+    font-weight: 600;
+    color: #3B2817;
+}
+
+.chart-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 40px;
+}
+
+.chart-container {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    width: 45%;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.chart-title {
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #3B2817;
+}
+</style>
+
+<!-- Header Dashboard -->
+<div class="dashboard-header">DASHBOARD</div>
+
+<!-- Isi Dashboard -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center p-3" style="border-left: 5px solid #C9A646;">
+      <h6>Total Produk</h6>
+      <h3>{{ $totalProduk ?? 0 }}</h3>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center p-3" style="border-left: 5px solid #C9A646;">
+      <h6>Transaksi Hari Ini</h6>
+      <h3>{{ $transaksiHariIni ?? 0 }}</h3>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center p-3" style="border-left: 5px solid #C9A646;">
+      <h6>Menunggu Konfirmasi</h6>
+      <h3>{{ $menungguKonfirmasi ?? 0 }}</h3>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card shadow-sm text-center p-3" style="border-left: 5px solid #C9A646;">
+      <h6>Total Pendapatan</h6>
+      <h3>Rp {{ number_format($totalPendapatan ?? 0, 0, ',', '.') }}</h3>
+    </div>
+  </div>
 </div>
 
-<div class="container-fluid px-4 py-4">
-    <!-- Kartu Ringkasan -->
-    <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card summary-card">
-                <div class="card-side"></div>
-                <div class="card-body text-center">
-                    <h5>Total Produk</h5>
-                    <h2>{{ $totalProducts ?? 0 }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card summary-card">
-                <div class="card-side"></div>
-                <div class="card-body text-center">
-                    <h5>Transaksi Hari Ini</h5>
-                    <h2>{{ $todayTransactions ?? 0 }}</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="card summary-card">
-                <div class="card-side"></div>
-                <div class="card-body text-center">
-                    <h5>Total Pendapatan</h5>
-                    <h2>Rp{{ number_format($totalRevenue ?? 0, 0, ',', '.') }}</h2>
-                </div>
-            </div>
-        </div>
-    </div>
+<hr class="mb-4">
 
-    <!-- Bagian Grafik -->
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card chart-card">
-                <div class="card-body">
-                    <h5 class="chart-title">📊 Analitik Penjualan Mingguan</h5>
-                    <canvas id="salesChart" height="250"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6 mb-4">
-            <div class="card chart-card">
-                <div class="card-body">
-                    <h5 class="chart-title">💰 Perbandingan Pembayaran</h5>
-                    <canvas id="donutChart" height="250"></canvas>
-                </div>
-            </div>
-        </div>
+<div class="row">
+  <div class="col-md-6">
+    <div class="card shadow-sm p-3 d-flex flex-column justify-content-center align-items-center" style="height: 370px;">
+      <h5 class="text-center mb-3 text-dark">Penjualan Harian</h5>
+      <canvas id="salesChart" style="height: 270px !important;"></canvas>
     </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card shadow-sm p-3 d-flex flex-column justify-content-center align-items-center" style="height: 370px;">
+      <h5 class="text-center mb-3 text-dark">Metode Pembayaran</h5>
+      <canvas id="paymentChart" style="height: 270px !important;"></canvas>
+    </div>
+  </div>
 </div>
 
-<!-- ChartJS -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Bar Chart: Analitik Penjualan
-    const ctx1 = document.getElementById('salesChart').getContext('2d');
-    new Chart(ctx1, {
-        type: 'bar',
-        data: {
-            labels: {!! json_encode($salesLabels ?? ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu']) !!},
-            datasets: [{
-                label: 'Total Transaksi (Rp)',
-                data: {!! json_encode($salesData ?? [120000,150000,90000,200000,180000,240000,130000]) !!},
-                backgroundColor: '#C9A646',
-                borderRadius: 6
-            }]
-        },
-        options: {
-            plugins: { legend: { display: false } },
-            scales: {
-                y: { beginAtZero: true }
-            }
-        }
-    });
+const ctx1 = document.getElementById('salesChart');
+new Chart(ctx1, {
+  type: 'bar',
+  data: {
+    labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+    datasets: [{
+      label: 'Jumlah Transaksi',
+      data: [5, 8, 10, 6, 12, 9, 11],
+      backgroundColor: '#C9A646',
+      borderRadius: 6
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
+});
 
-    // Donut Chart: Cash vs Transfer
-    const ctx2 = document.getElementById('donutChart').getContext('2d');
-    new Chart(ctx2, {
-        type: 'doughnut',
-        data: {
-            labels: ['Cash', 'Transfer'],
-            datasets: [{
-                data: [{{ $cashTotal ?? 60 }}, {{ $transferTotal ?? 40 }}],
-                backgroundColor: ['#C9A646', '#3E2C1C']
-            }]
-        },
-        options: {
-            plugins: { legend: { position: 'bottom' } }
-        }
-    });
+const ctx2 = document.getElementById('paymentChart');
+new Chart(ctx2, {
+  type: 'doughnut',
+  data: {
+    labels: ['Tunai', 'Transfer'],
+    datasets: [{
+      data: [60, 40],
+      backgroundColor: ['#C9A646', '#3E2C1C'],
+      borderWidth: 1
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '70%',
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { boxWidth: 15, color: '#3E2C1C' }
+      }
+    }
+  }
+});
 </script>
-
-<!-- Styling -->
-<style>
-    body {
-        font-family: 'Poppins', sans-serif;
-    }
-
-    .summary-card {
-        position: relative;
-        border-radius: 10px;
-        border: none;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.15);
-        overflow: hidden;
-        transition: transform .3s ease;
-    }
-    .summary-card:hover {
-        transform: translateY(-3px);
-    }
-    .summary-card .card-side {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 12px;
-        height: 100%;
-        background-color: #3E2C1C;
-    }
-
-    .chart-card {
-        border-radius: 10px;
-        border: 1.5px solid #3E2C1C;
-        background-color: #fff;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        padding: 10px 20px;
-    }
-
-    .chart-title {
-        color: #C9A646;
-        font-weight: 600;
-        text-align: center;
-        margin-bottom: 15px;
-    }
-</style>
 @endsection
