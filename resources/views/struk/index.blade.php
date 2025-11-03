@@ -13,10 +13,10 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($receipts as $r)
+            @foreach($struks as $s)
             <tr>
-                <td>{{ $r->receipt_code }}</td>
-                <td>{{ $r->transaction->code ?? '-' }}</td>
+                <td>{{ $s->receipt_code }}</td>
+                <td>{{ $s->transaction->code ?? '-' }}</td>
                 <td>{{ ucfirst($r->method) }}</td>
                 <td>Rp{{ number_format($r->total, 0, ',', '.') }}</td>
                 <td>

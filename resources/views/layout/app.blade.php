@@ -136,15 +136,15 @@
         <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
           <i class="fa-solid fa-house"></i> Dashboard
         </a>
-        <a href="{{ route('products.index') }}" class="{{ request()->routeIs('products.*') ? 'active' : '' }}">
-          <i class="fa-solid fa-box"></i> Kelola Produk
-        </a>
-        <a href="{{ route('transactions.create') }}" class="{{ request()->routeIs('transactions.*') ? 'active' : '' }}">
-          <i class="fa-solid fa-credit-card"></i> Konfirmasi Pembayaran
-        </a>
-        <a href="{{ route('receipts.index') }}" class="{{ request()->routeIs('receipts.*') ? 'active' : '' }}">
-          <i class="fa-solid fa-receipt"></i> Cetak Struk
-        </a>
+        <a href="{{ route('produk.index') }}" class="{{ request()->routeIs('produk.*') ? 'active' : '' }}">
+  <i class="fa-solid fa-box"></i> Kelola Produk
+</a>
+<a href="{{ route('transactions.create') }}" class="{{ request()->routeIs('transactions.*') ? 'active' : '' }}">
+  <i class="fa-solid fa-credit-card"></i> Konfirmasi Pembayaran
+</a>
+<a href="{{ route('struk.index') }}" class="{{ request()->routeIs('struk.*') ? 'active' : '' }}">
+  <i class="fa-solid fa-receipt"></i> Cetak Struk
+</a>
       </div>
     </div>
 

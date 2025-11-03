@@ -6,7 +6,7 @@
     <div class="table-section">
         <div class="table-header">
             <h4>Daftar Produk</h4>
-            <a href="{{ route('products.create') }}" class="btn-add">+ Tambah Produk</a>
+            <a href="{{ route('produk.create') }}" class="btn-add">+ Tambah Produk</a>
         </div>
 
         <table class="custom-table">
@@ -20,15 +20,15 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($products as $index => $product)
+                @forelse($produks as $index => $product)
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $product->name }}</td>
                     <td>Rp{{ number_format($product->price, 0, ',', '.') }}</td>
                     <td>{{ $product->stock }}</td>
                     <td>
-                        <a href="{{ route('products.edit', $product->id) }}" class="btn-edit">✏️</a>
-                        <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline;">
+                        <a href="{{ route('produk.edit', $product->id) }}" class="btn-edit">✏️</a>
+                        <form action="{{ route('produk.destroy', $product->id) }}" method="POST" style="display:inline;">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="btn-delete" onclick="return confirm('Yakin hapus produk ini?')">🗑️</button>

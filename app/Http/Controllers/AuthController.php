@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Kasir;
 
 class AuthController extends Controller
 {
@@ -14,26 +15,27 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $data = $request->validate([
             'username' => 'required|string',
             'password' => 'required|string',
         ]);
 
-        if (Auth::guard('web')->attempt($credentials)) {
+        $kasir = Kasir::where('username', $data['username'])->first();
+
+        if ($kasir && Hash::check($data['password'], $kasir->password)) {
+            auth()->login($kasir); // login manual
             $request->session()->regenerate();
             return redirect()->route('dashboard');
         }
 
-        return back()->withErrors([
-            'username' => 'Username atau password salah.',
-        ]);
+        return back()->withErrors(['login' => 'Username atau password salah'])->withInput();
     }
 
     public function logout(Request $request)
     {
-        Auth::logout();
+        auth()->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect('/login');
+        return redirect()->route('login');
     }
 }
