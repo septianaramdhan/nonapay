@@ -8,8 +8,8 @@ use App\Http\Controllers\StrukController;
 use App\Http\Controllers\AuthController;
 
 // login & logout
-Route::get('/', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
+Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // dashboard
@@ -27,7 +27,7 @@ Route::resource('produk', ProdukController::class);
 // transaksi (konfirmasi pembayaran)
 Route::get('/transactions/create', [TransaksiController::class, 'create'])->name('transactions.create');
 Route::post('/transactions/store', [TransaksiController::class, 'store'])->name('transactions.store');
-Route::get('/transactions/{id}', [TransaksiController::class, 'show'])->name('transactions.show');
+Route::get('/transactions/{id}', [TransaksiController::class, 'show'])->name('transactions.index');
 
 // struk (cetak struk)
 Route::get('/struk', [StrukController::class, 'index'])->name('struk.index');

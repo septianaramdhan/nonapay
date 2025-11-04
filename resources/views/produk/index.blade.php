@@ -1,11 +1,9 @@
 @extends('layout.app')
-
 @section('content')
 <div class="dashboard-header">KELOLA PRODUK</div>
-
-    <div class="table-section">
+<div class="table-section">
         <div class="table-header">
-            <h4>Daftar Produk</h4>
+            <h4>Data Produk</h4>
             <a href="{{ route('produk.create') }}" class="btn-add">+ Tambah Produk</a>
         </div>
 
@@ -20,34 +18,33 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($produks as $index => $product)
+               @forelse ($produks as $index => $produk)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $product->name }}</td>
-                    <td>Rp{{ number_format($product->price, 0, ',', '.') }}</td>
-                    <td>{{ $product->stock }}</td>
+                    <td>{{ $produk->nama_produk }}</td>
+                    <td>Rp{{ number_format($produk->harga, 0, ',', '.') }}</td>
+                    <td>{{ $produk->stok }}</td>
                     <td>
-                        <a href="{{ route('produk.edit', $product->id) }}" class="btn-edit">✏️</a>
-                        <form action="{{ route('produk.destroy', $product->id) }}" method="POST" style="display:inline;">
+                        <a href="{{ route('produk.edit', $produk->id_produk) }}">
+                            <button class="btn-edit"><i class="fa-solid fa-pen"></i> Edit</button>
+                        </a>
+                        <form action="{{ route('produk.destroy', $produk->id_produk) }}" method="POST" style="display:inline-block;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn-delete" onclick="return confirm('Yakin hapus produk ini?')">🗑️</button>
+                            <button class="btn-delete" onclick="return confirm('Yakin mau hapus produk ini?')">
+                                <i class="fa-solid fa-trash"></i> Hapus
+                            </button>
                         </form>
                     </td>
                 </tr>
-                @empty
-                <tr>
-                    <td colspan="5" class="empty-text">Belum ada produk yang ditambahkan</td>
-                </tr>
-                @endforelse
+            @empty
+                <tr><td colspan="5" class="no-data">Belum ada produk terdaftar</td></tr>
+            @endforelse
             </tbody>
         </table>
     </div>
 </div>
-
-<style>
-
-/* Header label */
+<STyle>
 .dashboard-header {
     position: fixed;
     top: 0;
@@ -60,10 +57,7 @@
     padding: 15px 40px;
     z-index: 1000;
     letter-spacing: 1px;
-}
-
-
-/* Tabel */
+}    
 .table-section {
     margin-top: 30px;
     background: #fff;
@@ -94,6 +88,37 @@
     transition: 0.3s;
 }
 
+.btn-edit {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-edit:hover {
+        background-color: #218838;
+    }
+
+
+        .btn-delete {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-delete:hover {
+        background-color: #b02a37;
+    }
+
 .btn-add:hover {
     background-color: #b7963d;
 }
@@ -122,26 +147,10 @@
     background-color: #f6f1e7;
 }
 
-.empty-text {
+.nodata {
     text-align: center;
     color: #777;
     padding: 20px;
 }
-
-/* Tombol edit & hapus */
-.btn-edit, .btn-delete {
-    border: none;
-    background: none;
-    cursor: pointer;
-    font-size: 18px;
-}
-
-.btn-edit:hover {
-    color: #C9A646;
-}
-
-.btn-delete:hover {
-    color: #a3312f;
-}
-</style>
+</STyle>
 @endsection

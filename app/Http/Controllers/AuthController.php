@@ -3,39 +3,38 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use App\Models\Kasir;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Session;
 
 class AuthController extends Controller
 {
-    public function showLogin()
+    public function showLoginForm()
     {
-        return view('login');
+        return view('login', ['title' => 'Login Kasir']);
     }
 
     public function login(Request $request)
     {
-        $data = $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
+        $request->validate([
+            'username' => 'required',
+            'password' => 'required'
         ]);
 
-        $kasir = Kasir::where('username', $data['username'])->first();
+        $kasir = Kasir::where('username', $request->username)->first();
 
-        if ($kasir && Hash::check($data['password'], $kasir->password)) {
-            auth()->login($kasir); // login manual
-            $request->session()->regenerate();
+        if ($kasir && Hash::check($request->password, $kasir->password)) {
+            Session::put('kasir_id', $kasir->id_kasir);
+            Session::put('kasir_name', $kasir->nama_kasir);
             return redirect()->route('dashboard');
         }
 
-        return back()->withErrors(['login' => 'Username atau password salah'])->withInput();
+        return back()->withErrors(['login' => 'Username atau password salah!']);
     }
 
-    public function logout(Request $request)
+    public function logout()
     {
-        auth()->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect()->route('login');
+        Session::flush();
+        return redirect()->route('login.form');
     }
 }
