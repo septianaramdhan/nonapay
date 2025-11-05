@@ -6,6 +6,8 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\StrukController;
 use App\Http\Controllers\AuthController;
+use Illuminate\Http\Request;
+use App\Models\Produk;
 
 // login & logout
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
@@ -24,6 +26,7 @@ Route::put('/produk/{id}', [ProdukController::class, 'update'])->name('produk.up
 Route::delete('/produk/{id}', [ProdukController::class, 'destroy'])->name('produk.destroy');
 Route::resource('produk', ProdukController::class);
 
+
 // Transaksi (Konfirmasi Pembayaran)
 Route::get('/transactions', [TransaksiController::class, 'index'])->name('transactions.index'); // ini yang utama dulu
 Route::get('/transactions/create', [TransaksiController::class, 'create'])->name('transactions.create');
@@ -35,3 +38,5 @@ Route::get('/transactions/{id}', [TransaksiController::class, 'show'])->name('tr
 Route::get('/struk', [StrukController::class, 'index'])->name('struk.index');
 Route::get('/struk/print/{id}', [StrukController::class, 'print'])->name('struk.print');
 Route::resource('struk', StrukController::class);
+
+

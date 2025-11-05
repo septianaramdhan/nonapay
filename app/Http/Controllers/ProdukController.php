@@ -61,35 +61,29 @@ class ProdukController extends Controller
 
 
     // ✏️ Form edit produk
-    public function edit($id)
-    {
-        $produk = Produk::where('id_produk', $id)->firstOrFail();
+  public function edit($id)
+{
+    $produk = Produk::findOrFail($id);
+    return view('produk.edit', compact('produk'));
+}
 
-        return view('produk.edit', [
-            'title' => 'Edit Produk',
-            'produk' => $produk
-        ]);
-    }
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'nama_produk' => 'required|string|max:255',
+        'harga' => 'required|numeric|min:0',
+        'stok' => 'required|integer|min:0',
+    ]);
 
-    // 🔄 Update data produk
-    public function update(Request $request, $id)
-    {
-        $request->validate([
-            'nama_produk' => 'required|string|max:100',
-            'harga' => 'required|numeric|min:0',
-            'stok' => 'required|integer|min:0'
-        ]);
+    $produk = Produk::findOrFail($id);
+    $produk->update([
+        'nama_produk' => $request->nama_produk,
+        'harga' => $request->harga,
+        'stok' => $request->stok,
+    ]);
 
-        $produk = Produk::where('id_produk', $id)->firstOrFail();
-        $produk->update([
-            'nama_produk' => $request->nama_produk,
-            'harga' => $request->harga,
-            'stok' => $request->stok
-        ]);
-
-        return redirect()->route('produk.index')
-            ->with('success', 'Produk berhasil diperbarui!');
-    }
+    return redirect()->route('produk.index')->with('success', 'Perubahan berhasil disimpan!');
+}
 
     // 🗑️ Hapus produk
     public function destroy($id)

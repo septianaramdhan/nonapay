@@ -8,21 +8,42 @@
         <a href="{{ route('transactions.index') }}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
     </div>
 
-    <form action="{{ route('transactions.store') }}" method="POST" class="form-transaksi">
+    <form action="{{ route('transactions.store') }}" method="POST" class="form-transaksi" id="transaksiForm">
         @csrf
-        <div class="form-group">
-            <label for="id_produk">Produk</label>
-            <select name="id_produk" id="id_produk" required>
-                <option value="">-- Pilih Produk --</option>
-                @foreach($produks as $produk)
-                    <option value="{{ $produk->id_produk }}">{{ $produk->nama_produk }} - Rp{{ number_format($produk->harga, 0, ',', '.') }}</option>
-                @endforeach
-            </select>
+
+        <div id="produk-container">
+            <div class="produk-row">
+                <div class="form-group">
+                    <label>Produk</label>
+                    <select name="id_produk[]" class="produk-select" required>
+                        <option value="">-- Pilih Produk --</option>
+                        @foreach($produks as $produk)
+                            <option value="{{ $produk->id_produk }}" data-harga="{{ $produk->harga }}">
+                                {{ $produk->nama_produk }} - Rp{{ number_format($produk->harga, 0, ',', '.') }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Jumlah</label>
+                    <input type="number" name="jumlah[]" class="jumlah-input" min="1" placeholder="Masukkan jumlah" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Subtotal</label>
+                    <input type="text" class="subtotal" readonly>
+                </div>
+
+                <button type="button" class="btn-remove" onclick="hapusProduk(this)">Hapus</button>
+            </div>
         </div>
 
-        <div class="form-group">
-            <label for="jumlah">Jumlah</label>
-            <input type="number" name="jumlah" id="jumlah" min="1" placeholder="Masukkan jumlah beli" required>
+        <button type="button" class="btn-tambah-produk" id="tambahProduk">+ Tambah Produk</button>
+
+        <div class="form-group total-wrapper">
+            <label>Total Harga</label>
+            <input type="text" id="total_harga" name="total_harga" readonly>
         </div>
 
         <div class="form-group">
@@ -34,9 +55,16 @@
             </select>
         </div>
 
-        <div class="form-group">
-            <label for="uang_diterima">Uang Diterima (jika Cash)</label>
-            <input type="number" name="uang_diterima" id="uang_diterima" placeholder="Masukkan jumlah uang">
+        <div id="uangSection" style="display: none;">
+            <div class="form-group">
+                <label for="uang_diterima">Uang Diterima</label>
+                <input type="number" name="uang_diterima" id="uang_diterima" placeholder="Masukkan jumlah uang">
+            </div>
+
+            <div class="form-group">
+                <label>Kembalian</label>
+                <input type="text" id="kembalian" readonly>
+            </div>
         </div>
 
         <div class="form-group">
@@ -69,7 +97,7 @@
     border-radius: 12px;
     padding: 25px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    max-width: 800px;
+    max-width: 900px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -133,5 +161,123 @@ select {
 .btn-back:hover {
     background-color: #2a1c0f;
 }
+
+.btn-tambah-produk {
+    background-color: #C9A646;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.btn-tambah-produk:hover {
+    background-color: #b38e39;
+}
+
+.produk-row {
+    display: grid;
+    grid-template-columns: 1fr 0.6fr 0.8fr auto;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 10px;
+}
+
+.btn-remove {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 10px;
+    cursor: pointer;
+}
+
+.btn-remove:hover {
+    background-color: #b02a37;
+}
+
+.total-wrapper input {
+    background-color: #f6f1e7;
+    font-weight: bold;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const container = document.getElementById('produk-container');
+    const tambahBtn = document.getElementById('tambahProduk');
+    const metode = document.getElementById('metode_pembayaran');
+    const uangSection = document.getElementById('uangSection');
+    const uangDiterima = document.getElementById('uang_diterima');
+    const kembalian = document.getElementById('kembalian');
+    const totalInput = document.getElementById('total_harga');
+    const form = document.getElementById('transaksiForm');
+
+    function hitungTotal() {
+        let total = 0;
+        container.querySelectorAll('.produk-row').forEach(row => {
+            const select = row.querySelector('.produk-select');
+            const jumlah = row.querySelector('.jumlah-input').value;
+            const harga = select.selectedOptions[0]?.dataset.harga || 0;
+            const subtotal = jumlah * harga;
+            row.querySelector('.subtotal').value = subtotal ? 'Rp' + subtotal.toLocaleString('id-ID') : '';
+            total += subtotal;
+        });
+        totalInput.value = 'Rp' + total.toLocaleString('id-ID');
+        hitungKembalian();
+    }
+
+    function hitungKembalian() {
+        if (metode.value === 'cash') {
+            const total = parseInt(totalInput.value.replace(/\D/g, '')) || 0;
+            const uang = parseInt(uangDiterima.value || 0);
+            const hasil = uang - total;
+            kembalian.value = hasil >= 0 ? 'Rp' + hasil.toLocaleString('id-ID') : 'Rp0';
+        } else {
+            kembalian.value = '';
+        }
+    }
+
+    tambahBtn.addEventListener('click', () => {
+        const row = container.querySelector('.produk-row').cloneNode(true);
+        row.querySelectorAll('input, select').forEach(el => el.value = '');
+        container.appendChild(row);
+    });
+
+    window.hapusProduk = (btn) => {
+        if (container.querySelectorAll('.produk-row').length > 1) {
+            btn.closest('.produk-row').remove();
+            hitungTotal();
+        }
+    };
+
+    container.addEventListener('change', hitungTotal);
+    container.addEventListener('input', hitungTotal);
+    uangDiterima.addEventListener('input', hitungKembalian);
+
+    metode.addEventListener('change', () => {
+        if (metode.value === 'cash') {
+            uangSection.style.display = 'block';
+            uangDiterima.required = true;
+        } else {
+            uangSection.style.display = 'none';
+            uangDiterima.required = false;
+        }
+        hitungKembalian();
+    });
+
+    form.addEventListener('submit', (e) => {
+        const total = parseInt(totalInput.value.replace(/\D/g, '')) || 0;
+        if (metode.value === 'cash') {
+            const uang = parseInt(uangDiterima.value || 0);
+            if (uang < total) {
+                alert('Uang diterima kurang dari total transaksi!');
+                e.preventDefault();
+            }
+        }
+    });
+});
+</script>
 @endsection

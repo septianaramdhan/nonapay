@@ -2,8 +2,7 @@
 
 @section('content')
 <style>
-
-      .header-page content {
+   .header-page content {
          margin-left: 230px;
     margin-top: 90px;
     padding: 30px 60px;
@@ -91,19 +90,30 @@
 
 <div class="form-section">
     <div class="form-container">
-        <form action="{{ route('produk.store') }}" method="POST">
+        <form action="{{ route('produk.update', $produk->id_produk) }}" method="POST">
             @csrf
+            @method('PUT')
+
             <label for="nama_produk">Nama Produk</label>
-            <input type="text" name="nama_produk" id="nama_produk" required>
+            <input type="text" name="nama_produk" id="nama_produk" 
+                value="{{ old('nama_produk', $produk->nama_produk) }}" required>
 
             <label for="harga">Harga</label>
-            <input type="number" name="harga" id="harga" required>
+            <input type="number" name="harga" id="harga" 
+                value="{{ old('harga', $produk->harga) }}" required>
 
             <label for="stok">Stok</label>
-            <input type="number" name="stok" id="stok" required>
+            <input type="number" name="stok" id="stok" 
+                value="{{ old('stok', $produk->stok) }}" required>
 
-            <button type="submit" class="btn-submit"><i class="fa-solid fa-plus"></i> Konfirmasi</button>
-            <a href="{{ route('produk.index') }}"><button type="button" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali</button></a>
+            <button type="submit" class="btn-submit">
+                <i class="fa-solid fa-check"></i> Simpan Perubahan
+            </button>
+            <a href="{{ route('produk.index') }}">
+                <button type="button" class="btn-back">
+                    <i class="fa-solid fa-arrow-left"></i> Kembali
+                </button>
+            </a>
         </form>
     </div>
 </div>
