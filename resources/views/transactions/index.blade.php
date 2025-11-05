@@ -1,68 +1,69 @@
 @extends('layout.app')
 @section('content')
 <div class="dashboard-header">KONFIRMASI PEMBAYARAN</div>
-<div class="table-section">
-        <div class="table-header">
-            <h4>Data Transaksi</h4>
-            <a href="{{ route('transactions.create') }}" class="btn-add">+ Tambah Transaksi</a>
-        </div>
 
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Produk</th>
-                    <th>Harga</th>
-                    <th>Stok</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-               @forelse ($produks as $index => $produk)
+<div class="table-section">
+    <div class="table-header">
+        <h4>Data Transaksi</h4>
+        <a href="{{ route('transactions.create') }}" class="btn-add">+ Tambah Transaksi</a>
+    </div>
+
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Tanggal</th>
+                <th>Total Harga</th>
+                <th>Metode Pembayaran</th>
+                <th>Uang Diterima</th>
+                <th>Kembalian</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse ($transaksis as $index => $transaksi)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $produk->nama_produk }}</td>
-                    <td>Rp{{ number_format($produk->harga, 0, ',', '.') }}</td>
-                    <td>{{ $produk->stok }}</td>
+                    <td>{{ \Carbon\Carbon::parse($transaksi->tanggal)->format('d M Y') }}</td>
+                    <td>Rp{{ number_format($transaksi->total_harga, 0, ',', '.') }}</td>
                     <td>
-                        <a href="{{ route('produk.edit', $produk->id_produk) }}">
-                            <button class="btn-edit"><i class="fa-solid fa-pen"></i> Edit</button>
-                        </a>
-                        <form action="{{ route('produk.destroy', $produk->id_produk) }}" method="POST" style="display:inline-block;">
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn-delete" onclick="return confirm('Yakin mau hapus produk ini?')">
-                                <i class="fa-solid fa-trash"></i> Hapus
-                            </button>
-                        </form>
+                        @if ($transaksi->metode_pembayaran == 'cash')
+                            <span class="cash">Cash</span>
+                        @else
+                            <span class="transfer">Transfer</span>
+                        @endif
                     </td>
+                    <td>Rp{{ number_format($transaksi->uang_diterima, 0, ',', '.') }}</td>
+                    <td>Rp{{ number_format($transaksi->kembalian, 0, ',', '.') }}</td>
                 </tr>
             @empty
-                <tr><td colspan="5" class="no-data">Belum ada produk terdaftar</td></tr>
+                <tr>
+                    <td colspan="6" class="no-data">Belum ada transaksi.</td>
+                </tr>
             @endforelse
-            </tbody>
-        </table>
-    </div>
+        </tbody>
+    </table>
 </div>
-<STyle>
+
+<style>
 .dashboard-header {
     position: fixed;
     top: 0;
-    left: 230px; /* biar nempel sama sidebar */
+    left: 230px;
     right: 0;
-    background-color: #3B2817; /* coklat tua */
-    color: #C9A646; /* emas */
+    background-color: #3B2817;
+    color: #C9A646;
     font-weight: 600;
     font-size: 26px;
     padding: 15px 40px;
     z-index: 1000;
     letter-spacing: 1px;
-}    
+}
+
 .table-section {
-    margin-top: 30px;
+    margin-top: 40px;
     background: #fff;
     border-radius: 12px;
-    padding: 20px;
+    padding: 25px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
@@ -78,6 +79,13 @@
     font-weight: 600;
 }
 
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    color: #3B2817;
+}
+
 .btn-add {
     background-color: #C9A646;
     color: #fff;
@@ -88,54 +96,12 @@
     transition: 0.3s;
 }
 
-.btn-edit {
-        background-color: #28a745;
-        color: white;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .btn-edit:hover {
-        background-color: #218838;
-    }
-
-
-        .btn-delete {
-        background-color: #dc3545;
-        color: white;
-        border: none;
-        padding: 6px 14px;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .btn-delete:hover {
-        background-color: #b02a37;
-    }
-
-.btn-add:hover {
-    background-color: #b7963d;
-}
-
-/* Tabel styling */
-.custom-table {
-    width: 100%;
-    border-collapse: collapse;
-    text-align: center;
-    color: #3B2817;
-}
-
 .custom-table th {
     background-color: #3B2817;
     color: #C9A646;
     padding: 12px;
     font-weight: 600;
+    text-transform: uppercase;
 }
 
 .custom-table td {
@@ -147,10 +113,20 @@
     background-color: #f6f1e7;
 }
 
-.nodata {
+.cash {
+    color: green;
+    font-weight: 600;
+}
+
+.transfer {
+    color: #007bff;
+    font-weight: 600;
+}
+
+.no-data {
     text-align: center;
     color: #777;
     padding: 20px;
 }
-</STyle>
+</style>
 @endsection

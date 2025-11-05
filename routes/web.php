@@ -24,11 +24,14 @@ Route::put('/produk/{id}', [ProdukController::class, 'update'])->name('produk.up
 Route::delete('/produk/{id}', [ProdukController::class, 'destroy'])->name('produk.destroy');
 Route::resource('produk', ProdukController::class);
 
-// transaksi (konfirmasi pembayaran)
+// Transaksi (Konfirmasi Pembayaran)
+Route::get('/transactions', [TransaksiController::class, 'index'])->name('transactions.index'); // ini yang utama dulu
 Route::get('/transactions/create', [TransaksiController::class, 'create'])->name('transactions.create');
-Route::post('/transactions/store', [TransaksiController::class, 'store'])->name('transactions.store');
-Route::get('/transactions/{id}', [TransaksiController::class, 'show'])->name('transactions.index');
+Route::post('/transactions', [TransaksiController::class, 'store'])->name('transactions.store');
+Route::get('/transactions/{id}', [TransaksiController::class, 'show'])->name('transactions.show');
+
 
 // struk (cetak struk)
 Route::get('/struk', [StrukController::class, 'index'])->name('struk.index');
 Route::get('/struk/print/{id}', [StrukController::class, 'print'])->name('struk.print');
+Route::resource('struk', StrukController::class);

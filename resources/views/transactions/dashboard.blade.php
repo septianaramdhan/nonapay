@@ -2,7 +2,6 @@
 
 @section('content')
 <style>
-/* === STYLE KHUSUS DASHBOARD === */
 .dashboard-header {
     position: fixed;
     top: 0;
@@ -16,87 +15,9 @@
     z-index: 1000;
     letter-spacing: 1px;
 }
-
-.dashboard-content {
-    margin-left: 230px;
-    margin-top: 90px;
-    padding: 30px 60px;
-    background-color: #f9f9f9;
-    min-height: 100vh;
-}
-
-.stat-boxes {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 25px;
-    margin-bottom: 50px;
-}
-
-.stat-box {
-    flex: 0 0 30%;
-    background: #fff;
-    border-radius: 10px;
-    padding: 25px;
-    text-align: center;
-    border: 1px solid #ddd;
-    position: relative;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-}
-
-.stat-box::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 10px;
-    height: 100%;
-    background-color: #3B2817;
-    border-radius: 10px 0 0 10px;
-}
-
-.stat-box h3 {
-    font-weight: 500;
-    color: #2c2c2c;
-    margin-bottom: 10px;
-}
-
-.stat-box p {
-    font-size: 22px;
-    font-weight: 600;
-    color: #3B2817;
-}
-
-.chart-section {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 40px;
-}
-
-.chart-container {
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 12px;
-    padding: 20px;
-    width: 45%;
-    height: 400px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-}
-
-.chart-title {
-    text-align: center;
-    font-weight: 600;
-    margin-bottom: 15px;
-    color: #3B2817;
-}
 </style>
 
-<!-- Header Dashboard -->
+<!-- Header -->
 <div class="dashboard-header">DASHBOARD</div>
 
 <!-- Isi Dashboard -->
@@ -115,8 +36,8 @@
   </div>
   <div class="col-md-3">
     <div class="card shadow-sm text-center p-3" style="border-left: 5px solid #C9A646;">
-      <h6>Menunggu Konfirmasi</h6>
-      <h3>{{ $menungguKonfirmasi ?? 0 }}</h3>
+      <h6>Total Transaksi</h6>
+      <h3>{{ $totalTransaksi ?? 0 }}</h3>
     </div>
   </div>
   <div class="col-md-3">
@@ -146,14 +67,21 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+// === ambil data dari controller ===
+const chartLabels = {!! $chartLabels !!};
+const chartData = {!! $chartData !!};
+const cash = {{ $cash }};
+const transfer = {{ $transfer }};
+
+// === BAR CHART PENJUALAN HARIAN ===
 const ctx1 = document.getElementById('salesChart');
 new Chart(ctx1, {
   type: 'bar',
   data: {
-    labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+    labels: chartLabels,
     datasets: [{
       label: 'Jumlah Transaksi',
-      data: [5, 8, 10, 6, 12, 9, 11],
+      data: chartData,
       backgroundColor: '#C9A646',
       borderRadius: 6
     }]
@@ -162,18 +90,28 @@ new Chart(ctx1, {
     responsive: true,
     maintainAspectRatio: false,
     scales: {
-      y: { beginAtZero: true }
+      y: {
+        beginAtZero: true,
+        suggestedMax: 20, // batas tampilan default
+        ticks: {
+          callback: function(value) {
+            // kalau data lebih besar dari 20, kasih tanda "+"
+            return value >= 20 ? value + '+' : value;
+          }
+        }
+      }
     }
   }
 });
 
+// === DONUT CHART METODE PEMBAYARAN ===
 const ctx2 = document.getElementById('paymentChart');
 new Chart(ctx2, {
   type: 'doughnut',
   data: {
     labels: ['Tunai', 'Transfer'],
     datasets: [{
-      data: [60, 40],
+      data: [cash, transfer],
       backgroundColor: ['#C9A646', '#3E2C1C'],
       borderWidth: 1
     }]

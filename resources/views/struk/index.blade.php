@@ -17,10 +17,10 @@
             <tr>
                 <td>{{ $s->receipt_code }}</td>
                 <td>{{ $s->transaction->code ?? '-' }}</td>
-                <td>{{ ucfirst($r->method) }}</td>
-                <td>Rp{{ number_format($r->total, 0, ',', '.') }}</td>
+                <td>{{ ucfirst($s->method) }}</td>
+                <td>Rp{{ number_format($s->total, 0, ',', '.') }}</td>
                 <td>
-                    <a href="{{ route('receipts.print', $r->id) }}" class="btn btn-sm btn-dark">🧾 Cetak</a>
+                    <a href="{{ route('struk.index', $s->id) }}" class="btn btn-sm btn-dark">🧾 Cetak</a>
                 </td>
             </tr>
             @endforeach
