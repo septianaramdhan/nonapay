@@ -20,7 +20,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 // produk (kelola produk)
 Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
 Route::post('/produk', [ProdukController::class, 'store'])->name('produk.store');
-Route::post('/produk', [ProdukController::class, 'store'])->name('produk.create');
+Route::get('/produk', [ProdukController::class, 'store'])->name('produk.create');
 Route::get('/produk/{id}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
 Route::put('/produk/{id}', [ProdukController::class, 'update'])->name('produk.update');
 Route::delete('/produk/{id}', [ProdukController::class, 'destroy'])->name('produk.destroy');

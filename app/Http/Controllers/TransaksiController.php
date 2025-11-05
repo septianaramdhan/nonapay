@@ -9,7 +9,7 @@ use App\Models\Struk;
 use App\Models\Produk;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class TransaksiController extends Controller
 {
@@ -69,16 +69,22 @@ class TransaksiController extends Controller
         ]);
 
         // Simpan detail transaksi per produk
-        foreach ($request->id_produk as $index => $id_produk) {
-            $produk = Produk::findOrFail($id_produk);
-            $subtotal = $produk->harga * $request->jumlah[$index];
+      foreach ($request->id_produk as $index => $id_produk) {
+    $produk = Produk::findOrFail($id_produk);
 
-            DetailTransaksi::create([
-                'id_transaksi' => $transaksi->id_transaksi,
-                'id_produk' => $id_produk,
-                'jumlah' => $request->jumlah[$index],
-                'subtotal' => $subtotal,
-            ]);
+    // 🚫 Cek stok habis
+    if ($produk->stok <= 0) {
+        DB::rollBack();
+        return back()->with('error', "Produk '{$produk->nama_produk}' stoknya sudah habis!");
+    }
+
+    // 🚫 Cek kalo beli lebih dari stok tersedia
+    if ($request->jumlah[$index] > $produk->stok) {
+        DB::rollBack();
+        return back()->with('error', "Jumlah pembelian '{$produk->nama_produk}' melebihi stok yang tersedia ({$produk->stok})!");
+    }
+
+    $subtotal = $produk->harga * $request->jumlah[$index];
 
             // Kurangi stok produk
             $produk->stok -= $request->jumlah[$index];

@@ -160,5 +160,55 @@
     @yield('content')
   </div>
 
+  <!-- SweetAlert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    // Pop-up Logout
+    document.addEventListener('DOMContentLoaded', function() {
+      const logoutBtn = document.querySelector('.logout a');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const url = this.getAttribute('href');
+
+          Swal.fire({
+            title: 'Anda akan keluar',
+            text: 'Yakin mau keluar?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#C9A646',
+            cancelButtonColor: '#3E2C1C',
+            confirmButtonText: 'Iya',
+            cancelButtonText: 'Tidak'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              window.location.href = url;
+            }
+          });
+        });
+      }
+
+      // Pop-up Notifikasi Transaksi
+      @if(session('success'))
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: '{{ session('success') }}',
+        confirmButtonColor: '#C9A646'
+      });
+      @endif
+
+      @if(session('error'))
+      Swal.fire({
+        icon: 'error',
+        title: 'Stok Tidak Cukup',
+        text: '{{ session('error') }}',
+        confirmButtonColor: '#3E2C1C'
+      });
+      @endif
+    });
+  </script>
+
 </body>
 </html>
