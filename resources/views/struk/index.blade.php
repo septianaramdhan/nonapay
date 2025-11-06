@@ -5,28 +5,29 @@
     <table class="table table-striped mt-3">
         <thead>
             <tr>
-                <th>No Struk</th>
-                <th>Kode Transaksi</th>
+                <th>No</th>
+                <th>Nomor Struk</th>
                 <th>Metode</th>
                 <th>Total</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
-            @foreach($struks as $s)
+            @foreach($struks as $index => $s)
             <tr>
-                <td>{{ $s->receipt_code }}</td>
-                <td>{{ $s->transaction->code ?? '-' }}</td>
-                <td>{{ ucfirst($s->method) }}</td>
-                <td>Rp{{ number_format($s->total, 0, ',', '.') }}</td>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $s->id_struk }}</td>
+                <td>{{ ucfirst($s->transaksi->metode_pembayaran ?? '-') }}</td>
+                <td>Rp{{ number_format($s->transaksi->total_harga ?? 0, 0, ',', '.') }}</td>
                 <td>
-                    <a href="{{ route('struk.index', $s->id) }}" class="btn btn-sm btn-dark">🧾 Cetak</a>
+                    <a href="{{ route('print', $s->id_struk) }}" class="btn btn-sm btn-dark">🧾 Cetak</a>
                 </td>
             </tr>
             @endforeach
         </tbody>
     </table>
 </div>
+
 <style>
 .dashboard-header {
     position: fixed;

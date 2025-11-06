@@ -36,7 +36,6 @@ Route::get('/transactions/{id}', [TransaksiController::class, 'show'])->name('tr
 
 // struk (cetak struk)
 Route::get('/struk', [StrukController::class, 'index'])->name('struk.index');
-Route::get('/struk/print/{id}', [StrukController::class, 'print'])->name('struk.print');
-Route::resource('struk', StrukController::class);
+Route::get('/struk/print/{id}', [StrukController::class, 'print'])->name('print');
 
 

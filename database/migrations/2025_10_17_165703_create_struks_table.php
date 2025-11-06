@@ -8,6 +8,7 @@ return new class extends Migration {
 {
     Schema::create('struks', function (Blueprint $table) {
         $table->id('id_struk');
+        $table->string('nomor_struk')->nullable();
         $table->unsignedBigInteger('id_transaksi');
         $table->date('tanggal_cetak');
         $table->timestamps();
@@ -17,6 +18,6 @@ return new class extends Migration {
 }
 
     public function down() {
-        Schema::dropIfExists('receipts');
+        Schema::dropIfExists('struks');
     }
 };
