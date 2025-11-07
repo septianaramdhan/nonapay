@@ -19,38 +19,64 @@
                 <span class="transfer">Transfer</span>
             @endif
         </p>
+
+        {{-- Info tambahan jika transfer --}}
+        @if ($transaksi->metode_pembayaran == 'transfer')
+            <p><strong>Jenis Transfer:</strong>
+                @if ($transaksi->tipe_transfer == 'bank')
+                    Bank
+                @elseif ($transaksi->tipe_transfer == 'ewallet')
+                    E-Wallet
+                @else
+                    -
+                @endif
+            </p>
+
+            @if ($transaksi->tipe_transfer == 'bank')
+                <p><strong>Bank Tujuan:</strong> {{ $transaksi->nama_bank ?? '-' }}</p>
+                <p><strong>No. Rekening:</strong> {{ $transaksi->nomor_rekening ?? '-' }}</p>
+            @elseif ($transaksi->tipe_transfer == 'ewallet')
+                <p><strong>Nama E-Wallet:</strong> {{ $transaksi->nama_ewallet ?? '-' }}</p>
+                <p><strong>No. E-Wallet:</strong> {{ $transaksi->nomor_ewallet ?? '-' }}</p>
+                <p><strong>Atas Nama:</strong> {{ $transaksi->nama_pengirim ?? '-' }}</p>
+            @endif
+        @endif
+
         <p><strong>Total Harga:</strong> Rp{{ number_format($transaksi->total_harga, 0, ',', '.') }}</p>
-        <p><strong>Uang Diterima:</strong> Rp{{ number_format($transaksi->uang_diterima, 0, ',', '.') }}</p>
-        <p><strong>Kembalian:</strong> Rp{{ number_format($transaksi->kembalian, 0, ',', '.') }}</p>
+
+        @if ($transaksi->metode_pembayaran == 'cash')
+            <p><strong>Uang Diterima:</strong> Rp{{ number_format($transaksi->uang_diterima, 0, ',', '.') }}</p>
+            <p><strong>Kembalian:</strong> Rp{{ number_format($transaksi->kembalian, 0, ',', '.') }}</p>
+        @endif
     </div>
 
     <h4 class="table-title">Detail Produk</h4>
-<table class="custom-table">
-    <thead>
-        <tr>
-            <th>No</th>
-            <th>Nama Produk</th>
-            <th>Harga Satuan</th>
-            <th>Jumlah</th>
-            <th>Subtotal</th>
-        </tr>
-    </thead>
-    <tbody>
-        @forelse ($detailTransaksis as $index => $detail)
+    <table class="custom-table">
+        <thead>
             <tr>
-                <td>{{ $index + 1 }}</td>
-                <td>{{ $detail->produk->nama_produk ?? 'Produk tidak ditemukan' }}</td>
-                <td>Rp{{ number_format($detail->produk->harga ?? 0, 0, ',', '.') }}</td>
-                <td>{{ $detail->jumlah }}</td>
-                <td>Rp{{ number_format($detail->subtotal, 0, ',', '.') }}</td>
+                <th>No</th>
+                <th>Nama Produk</th>
+                <th>Harga Satuan</th>
+                <th>Jumlah</th>
+                <th>Subtotal</th>
             </tr>
-        @empty
-            <tr>
-                <td colspan="5" class="no-data">Tidak ada detail transaksi.</td>
-            </tr>
-        @endforelse
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @forelse ($detailTransaksis as $index => $detail)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $detail->produk->nama_produk ?? 'Produk tidak ditemukan' }}</td>
+                    <td>Rp{{ number_format($detail->produk->harga ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ $detail->jumlah }}</td>
+                    <td>Rp{{ number_format($detail->subtotal, 0, ',', '.') }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="5" class="no-data">Tidak ada detail transaksi.</td>
+                </tr>
+            @endforelse
+        </tbody>
+    </table>
 
 </div>
 

@@ -5,24 +5,24 @@
 <div class="table-section">
     <div class="table-header">
         <h4>Input Transaksi Baru</h4>
-        <a href="{{ route('transactions.index') }}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Lihat Data Transaksi</a>
+        <a href="{{ route('transactions.index') }}" class="btn-back">
+            <i class="fa-solid fa-arrow-left"></i> Lihat Data Transaksi
+        </a>
     </div>
 
     <form action="{{ route('transactions.store') }}" method="POST" class="form-transaksi" id="transaksiForm">
         @csrf
 
+        {{-- 🔍 CARI PRODUK --}}
         <div id="produk-container">
             <div class="produk-row">
                 <div class="form-group">
                     <label>Produk</label>
-                    <select name="id_produk[]" class="produk-select" required>
-                        <option value="">-- Pilih Produk --</option>
-                        @foreach($produks as $produk)
-                            <option value="{{ $produk->id_produk }}" data-harga="{{ $produk->harga }}">
-                                {{ $produk->nama_produk }} - Rp{{ number_format($produk->harga, 0, ',', '.') }}
-                            </option>
-                        @endforeach
-                    </select>
+                    <div class="search-wrapper">
+                        <input type="text" class="produk-search" placeholder="Cari produk..." autocomplete="off">
+                        <div class="produk-dropdown"></div>
+                    </div>
+                    <input type="hidden" name="id_produk[]" class="produk-id">
                 </div>
 
                 <div class="form-group">
@@ -55,6 +55,7 @@
             </select>
         </div>
 
+        {{-- Uang Diterima (Cash Only) --}}
         <div id="uangSection" style="display: none;">
             <div class="form-group">
                 <label for="uang_diterima">Uang Diterima</label>
@@ -67,17 +68,55 @@
             </div>
         </div>
 
+        {{-- Transfer Section --}}
+        <div id="transferSection" style="display: none;">
+            <div class="form-group">
+                <label for="jenis_transfer">Jenis Transfer</label>
+                <select name="jenis_transfer" id="jenis_transfer">
+                    <option value="">-- Pilih Jenis Transfer --</option>
+                    <optgroup label="Bank">
+                        <option value="BCA">Bank BCA</option>
+                        <option value="BNI">Bank BNI</option>
+                        <option value="BRI">Bank BRI</option>
+                        <option value="Mandiri">Bank Mandiri</option>
+                    </optgroup>
+                    <optgroup label="E-Wallet">
+                        <option value="DANA">DANA</option>
+                        <option value="OVO">OVO</option>
+                        <option value="GoPay">GoPay</option>
+                        <option value="ShopeePay">ShopeePay</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="form-group" id="bankField" style="display: none;">
+                <label for="no_rekening">Nomor Rekening</label>
+                <input type="text" name="no_rekening" id="no_rekening" placeholder="Masukkan nomor rekening">
+            </div>
+
+           <div class="form-group" id="ewalletField" style="display: none;">
+    <label for="atas_nama">Atas Nama (A/N)</label>
+    <input type="text" name="atas_nama" id="atas_nama" placeholder="Masukkan nama pemilik akun">
+
+    <label for="nomor_ewallet" style="margin-top:10px;">Nomor E-Wallet</label>
+    <input type="text" name="no_ewallet" id="nomor_ewallet" placeholder="Masukkan nomor e-wallet">
+</div>
+
+        </div>
+
         <div class="form-group">
             <label for="catatan">Catatan (opsional)</label>
             <input type="text" name="catatan" id="catatan" placeholder="Masukkan catatan jika ada">
         </div>
 
-        <button type="submit" class="btn-submit"><i class="fa-solid fa-floppy-disk"></i> Simpan Transaksi</button>
+        <button type="submit" class="btn-submit">
+            <i class="fa-solid fa-floppy-disk"></i> Simpan Transaksi
+        </button>
     </form>
 </div>
 
 <style>
-/* ========== STYLING TETEP SAMA ========== */
+/* ======== STYLE UTAMA ========= */
 .dashboard-header {
     position: fixed;
     top: 0;
@@ -203,6 +242,50 @@ select {
     background-color: #f6f1e7;
     font-weight: bold;
 }
+
+#transferSection {
+    background-color: #fdfaf4;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+/* 🔍 STYLE CARI PRODUK */
+.search-wrapper {
+    position: relative;
+}
+
+.produk-search {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.produk-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 0 0 8px 8px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 999;
+    display: none;
+}
+
+.produk-dropdown div {
+    padding: 8px 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.produk-dropdown div:hover {
+    background-color: #f6f1e7;
+}
 </style>
 
 <script>
@@ -215,13 +298,67 @@ document.addEventListener('DOMContentLoaded', () => {
     const kembalian = document.getElementById('kembalian');
     const totalInput = document.getElementById('total_harga');
     const form = document.getElementById('transaksiForm');
+    const transferSection = document.getElementById('transferSection');
+    const jenisTransfer = document.getElementById('jenis_transfer');
+    const bankField = document.getElementById('bankField');
+    const ewalletField = document.getElementById('ewalletField');
 
+    // 🔍 Setup pencarian produk
+    function setupSearch(row) {
+        const search = row.querySelector('.produk-search');
+        const dropdown = row.querySelector('.produk-dropdown');
+        const hiddenId = row.querySelector('.produk-id');
+
+        search.addEventListener('input', () => {
+            const keyword = search.value.trim();
+            if (keyword.length < 1) { dropdown.style.display = 'none'; return; }
+
+            fetch(`/produk/search?q=${keyword}`)
+                .then(res => res.json())
+                .then(data => {
+                    dropdown.innerHTML = '';
+                    if (data.length === 0) { dropdown.style.display = 'none'; return; }
+
+                    data.forEach(p => {
+                        const item = document.createElement('div');
+                        item.textContent = `${p.nama_produk} - Rp${parseInt(p.harga).toLocaleString('id-ID')}`;
+                        item.addEventListener('click', () => {
+                            search.value = p.nama_produk;
+                            search.dataset.harga = p.harga;
+                            hiddenId.value = p.id_produk;
+                            dropdown.style.display = 'none';
+
+                            // otomatis isi jumlah = 1
+                            const jumlahInput = row.querySelector('.jumlah-input');
+                            jumlahInput.value = 1;
+
+                            // hitung dan isi subtotal langsung
+                            const subtotalInput = row.querySelector('.subtotal');
+                            const subtotal = parseInt(p.harga);
+                            subtotalInput.value = 'Rp' + subtotal.toLocaleString('id-ID');
+
+                            // update total keseluruhan
+                            hitungTotal();
+                        });
+
+                        dropdown.appendChild(item);
+                    });
+                    dropdown.style.display = 'block';
+                });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!row.contains(e.target)) dropdown.style.display = 'none';
+        });
+    }
+
+    // 💰 Hitung total dan subtotal otomatis
     function hitungTotal() {
         let total = 0;
         container.querySelectorAll('.produk-row').forEach(row => {
-            const select = row.querySelector('.produk-select');
-            const jumlah = row.querySelector('.jumlah-input').value;
-            const harga = select.selectedOptions[0]?.dataset.harga || 0;
+            const search = row.querySelector('.produk-search');
+            const jumlah = parseInt(row.querySelector('.jumlah-input').value || 0);
+            const harga = parseInt(search.dataset.harga || 0);
             const subtotal = jumlah * harga;
             row.querySelector('.subtotal').value = subtotal ? 'Rp' + subtotal.toLocaleString('id-ID') : '';
             total += subtotal;
@@ -233,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function hitungKembalian() {
         if (metode.value === 'cash') {
             const total = parseInt(totalInput.value.replace(/\D/g, '')) || 0;
-            const uang = parseFloat(uangDiterima.value || 0);
+            const uang = parseInt(uangDiterima.value.replace(/\D/g,'') || 0);
             const hasil = uang - total;
             kembalian.value = hasil >= 0 ? 'Rp' + hasil.toLocaleString('id-ID') : 'Rp0';
         } else {
@@ -241,12 +378,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ➕ Tambah produk baru
     tambahBtn.addEventListener('click', () => {
         const row = container.querySelector('.produk-row').cloneNode(true);
-        row.querySelectorAll('input, select').forEach(el => el.value = '');
+        row.querySelectorAll('input').forEach(el => el.value = '');
+        row.querySelector('.produk-search').dataset.harga = '';
         container.appendChild(row);
+        setupSearch(row);
     });
 
+    // ❌ Hapus produk
     window.hapusProduk = (btn) => {
         if (container.querySelectorAll('.produk-row').length > 1) {
             btn.closest('.produk-row').remove();
@@ -254,53 +395,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    container.addEventListener('change', hitungTotal);
     container.addEventListener('input', hitungTotal);
-    uangDiterima.addEventListener('input', hitungKembalian);
 
-    metode.addEventListener('change', () => {
-        if (metode.value === 'cash') {
-            uangSection.style.display = 'block';
-            uangDiterima.required = true;
-        } else {
-            uangSection.style.display = 'none';
-            uangDiterima.required = false;
+    // ==========================
+    // 💵 Uang diterima
+    // ==========================
+
+    // Awalnya sembunyikan
+    uangSection.style.display = 'none';
+
+metode.addEventListener('change', () => {
+    if (metode.value === 'cash') {
+        uangSection.style.display = 'block';
+        transferSection.style.display = 'none';
+    } else if (metode.value === 'transfer') {
+        uangSection.style.display = 'none';
+        transferSection.style.display = 'block';
+    } else {
+        uangSection.style.display = 'none';
+        transferSection.style.display = 'none';
+    }
+});
+
+
+    // Alert kalau lebih dari 12 digit
+    uangDiterima.addEventListener('input', () => {
+        let val = uangDiterima.value.replace(/\D/g,''); // ambil angka aja
+        if (val.length > 7) {
+            alert('Maksimal kasih uang 9,999,999!!');
+            val = val.slice(0,7);
         }
+        uangDiterima.value = val;
         hitungKembalian();
     });
 
-    // ✅ Validasi panjang digit realtime + di submit
-    function cekPanjangDigit() {
-        const uangStr = uangDiterima.value.trim();
-        const bagianUtama = uangStr.split('.')[0].replace(/\D/g, '');
-        if (bagianUtama.length > 12) {
-            uangDiterima.setCustomValidity('Nominal uang diterima melebihi 12 digit! (max 12 digit sebelum koma)');
+    // ==========================
+    // Transfer section
+    // ==========================
+    jenisTransfer.addEventListener('change', () => {
+        const val = jenisTransfer.value;
+        if (['BCA', 'BNI', 'BRI', 'Mandiri'].includes(val)) {
+            bankField.style.display = 'block';
+            ewalletField.style.display = 'none';
+        } else if (['DANA', 'OVO', 'GoPay', 'ShopeePay'].includes(val)) {
+            bankField.style.display = 'none';
+            ewalletField.style.display = 'block';
         } else {
-            uangDiterima.setCustomValidity('');
+            bankField.style.display = 'none';
+            ewalletField.style.display = 'none';
         }
-    }
+    });
 
-    // Cek setiap kali input berubah
-    uangDiterima.addEventListener('input', cekPanjangDigit);
-
+    // Submit form validasi
     form.addEventListener('submit', (e) => {
         const total = parseInt(totalInput.value.replace(/\D/g, '')) || 0;
-
-        cekPanjangDigit(); // pastikan dicek lagi sebelum submit
-        if (!form.checkValidity()) {
-            alert(uangDiterima.validationMessage);
-            e.preventDefault();
-            return;
-        }
-
         if (metode.value === 'cash') {
-            const uang = parseFloat(uangDiterima.value || 0);
+            const uang = parseInt(uangDiterima.value.replace(/\D/g,'') || 0);
             if (uang < total) {
                 alert('Uang diterima kurang dari total transaksi!');
                 e.preventDefault();
             }
         }
     });
+
+    // 🔥 Inisialisasi pertama
+    setupSearch(container.querySelector('.produk-row'));
 });
 </script>
 

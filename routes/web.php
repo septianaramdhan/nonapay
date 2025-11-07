@@ -24,6 +24,7 @@ Route::get('/produk', [ProdukController::class, 'store'])->name('produk.create')
 Route::get('/produk/{id}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
 Route::put('/produk/{id}', [ProdukController::class, 'update'])->name('produk.update');
 Route::delete('/produk/{id}', [ProdukController::class, 'destroy'])->name('produk.destroy');
+Route::get('/produk/search', [ProdukController::class, 'search'])->name('produk.search');
 Route::resource('produk', ProdukController::class);
 
 
@@ -32,6 +33,13 @@ Route::get('/transactions', [TransaksiController::class, 'index'])->name('transa
 Route::get('/transactions/create', [TransaksiController::class, 'create'])->name('transactions.create');
 Route::post('/transactions', [TransaksiController::class, 'store'])->name('transactions.store');
 Route::get('/transactions/{id}', [TransaksiController::class, 'show'])->name('transactions.show');
+
+// 🔍 route ajax untuk pencarian produk
+Route::get('/produk/search', function (Request $request) {
+    $query = $request->q;
+    $produks = \App\Models\Produk::where('nama_produk', 'like', "%$query%")->get();
+    return response()->json($produks);
+});
 
 
 // struk (cetak struk)

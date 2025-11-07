@@ -28,6 +28,16 @@ class ProdukController extends Controller
         ]);
     }
 
+   public function search(Request $request)
+{
+    $keyword = $request->get('q');
+    $produk = Produk::where('nama_produk', 'like', "%{$keyword}%")->limit(10)->get();
+
+    return response()->json($produk);
+}
+
+
+
     // 💾 Simpan produk baru
    public function store(Request $request)
 {

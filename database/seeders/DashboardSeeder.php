@@ -2,27 +2,18 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class DashboardSeeder extends Seeder
+class DatabaseSeeder extends Seeder
 {
     /**
-     * Run the database seeds.
+     * Seed the application's database.
      */
-   public function index()
-{
-    $totalProduk = Product::count();
-    $transaksiHariIni = Transaction::whereDate('created_at', today())->count();
-    $menungguKonfirmasi = Transaction::where('status', 'pending')->count();
-    $totalPendapatan = Transaction::where('status', 'selesai')->sum('total_harga');
-
-    return view('dashboard', compact(
-        'totalProduk',
-        'transaksiHariIni',
-        'menungguKonfirmasi',
-        'totalPendapatan'
-    ));
-}
-
+    public function run(): void
+    {
+        $this->call([
+            KasirSeeder::class, // panggil seeder kasir kamu di sini
+            // tambahkan seeder lain nanti kalau ada
+        ]);
+    }
 }

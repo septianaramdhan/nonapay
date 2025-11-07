@@ -7,9 +7,12 @@ use Illuminate\Database\Seeder;
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
-    {
-        $this->call([
-            KasirSeeder::class,
-        ]);
-    }
+{
+    \App\Models\Kasir::create([
+        'nama_kasir' => 'Noneng',
+        'username' => 'noneng',
+        'password' => bcrypt('12345'),
+    ]);
+}
+
 }

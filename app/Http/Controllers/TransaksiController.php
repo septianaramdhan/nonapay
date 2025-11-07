@@ -27,42 +27,52 @@ class TransaksiController extends Controller
 
     public function show($id)
     {
-        // Ambil transaksi dengan detail dan produk sekaligus
+        // Ambil transaksi + detail transaksi + produk
         $transaksi = Transaksi::with('detailTransaksi.produk')->findOrFail($id);
 
-        // Ambil data detail transaksi terpisah untuk ditampilkan di tabel
-        $detailTransaksis = DetailTransaksi::with('produk')
-            ->where('id_transaksi', $transaksi->id_transaksi)
-            ->get();
+        $detailTransaksis = $transaksi->detailTransaksi ?? collect();
 
         return view('transactions.show', compact('transaksi', 'detailTransaksis'));
     }
 
+    public function searchProduk(Request $request)
+    {
+        $keyword = $request->get('q');
+        $produk = Produk::where('nama_produk', 'like', "%$keyword%")
+                        ->take(10)
+                        ->get(['id_produk', 'nama_produk', 'harga']);
 
+        return response()->json($produk);
+    }
 
     public function store(Request $request)
 {
     DB::beginTransaction();
+
     try {
+        // ✅ Validasi input
         $request->validate([
             'id_produk' => 'required|array',
             'id_produk.*' => 'exists:produks,id_produk',
             'jumlah' => 'required|array',
             'jumlah.*' => 'integer|min:1',
             'metode_pembayaran' => 'required|in:cash,transfer',
-            'uang_diterima' => 'nullable|numeric',
+            'uang_diterima' => 'nullable|numeric|max:999999999999', // max 12 digit
+            'jenis_transfer' => 'nullable|string',
+            'no_rekening' => 'nullable|string|max:20',
+            'no_ewallet' => 'nullable|string|max:20',
+            'atas_nama' => 'nullable|string|max:50',
         ]);
 
+        // Hitung total harga
         $total_harga = 0;
-
-        // Hitung total harga semua produk
         foreach ($request->id_produk as $index => $id_produk) {
             $produk = Produk::findOrFail($id_produk);
             $subtotal = $produk->harga * $request->jumlah[$index];
             $total_harga += $subtotal;
         }
 
-        // Validasi uang diterima (kalau cash)
+        // Validasi uang diterima jika cash
         if ($request->metode_pembayaran === 'cash') {
             if (!$request->uang_diterima || $request->uang_diterima < $total_harga) {
                 return back()->with('error', 'Uang diterima tidak boleh kurang dari total harga!');
@@ -74,6 +84,31 @@ class TransaksiController extends Controller
         $count = Transaksi::whereDate('tanggal', Carbon::today())->count() + 1;
         $kodeTransaksi = 'TRX' . $tanggal . '-' . $count;
 
+        // Inisialisasi variabel transfer
+        $tipe_transfer = null;
+        $nama_bank = null;
+        $nomor_rekening = null;
+        $nama_ewallet = null;
+        $nomor_ewallet = null;
+        $nama_pengirim = null;
+
+        // Jika transfer
+        if ($request->metode_pembayaran === 'transfer') {
+            $jenis = $request->jenis_transfer;
+
+            if (in_array($jenis, ['BCA','BNI','BRI','Mandiri'])) {
+                $tipe_transfer = 'bank';
+                $nama_bank = $jenis;
+                $nomor_rekening = $request->no_rekening;
+                $nama_pengirim = $request->atas_nama;
+            } elseif (in_array($jenis, ['DANA','OVO','GoPay','ShopeePay'])) {
+                $tipe_transfer = 'ewallet';
+                $nama_ewallet = $jenis;
+                $nomor_ewallet = $request->no_ewallet;
+                $nama_pengirim = $request->atas_nama;
+            }
+        }
+
         // Simpan transaksi utama
         $transaksi = Transaksi::create([
             'kode_transaksi' => $kodeTransaksi,
@@ -81,19 +116,20 @@ class TransaksiController extends Controller
             'tanggal' => Carbon::now(),
             'total_harga' => $total_harga,
             'metode_pembayaran' => $request->metode_pembayaran,
-            'uang_diterima' => $request->metode_pembayaran === 'cash'
-                ? $request->uang_diterima
-                : $total_harga,
-            'kembalian' => $request->metode_pembayaran === 'cash'
-                ? ($request->uang_diterima - $total_harga)
-                : 0,
+            'uang_diterima' => $request->metode_pembayaran === 'cash' ? $request->uang_diterima : $total_harga,
+            'kembalian' => $request->metode_pembayaran === 'cash' ? ($request->uang_diterima - $total_harga) : 0,
+            'tipe_transfer' => $tipe_transfer,
+            'nama_bank' => $nama_bank,
+            'nomor_rekening' => $nomor_rekening,
+            'nama_ewallet' => $nama_ewallet,
+            'nomor_ewallet' => $nomor_ewallet,
+            'nama_pengirim' => $nama_pengirim,
         ]);
 
-        // Simpan detail transaksi per produk
+        // Simpan detail transaksi & kurangi stok
         foreach ($request->id_produk as $index => $id_produk) {
             $produk = Produk::findOrFail($id_produk);
 
-            // Cek stok
             if ($produk->stok <= 0) {
                 DB::rollBack();
                 return back()->with('error', "Produk '{$produk->nama_produk}' stoknya sudah habis!");
@@ -108,7 +144,6 @@ class TransaksiController extends Controller
             $produk->stok -= $request->jumlah[$index];
             $produk->save();
 
-            // 💾 Simpan ke tabel detail_transaksis
             DetailTransaksi::create([
                 'id_transaksi' => $transaksi->id_transaksi,
                 'id_produk' => $produk->id_produk,
@@ -129,9 +164,11 @@ class TransaksiController extends Controller
 
         DB::commit();
         return redirect()->route('transactions.index')->with('success', 'Transaksi berhasil disimpan! Struk siap dicetak.');
+
     } catch (\Exception $e) {
         DB::rollBack();
         return back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());
     }
 }
+
 }
