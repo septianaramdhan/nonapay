@@ -25,6 +25,21 @@ class TransaksiController extends Controller
         return view('transactions.create', compact('produks'));
     }
 
+    public function show($id)
+    {
+        // Ambil transaksi dengan detail dan produk sekaligus
+        $transaksi = Transaksi::with('detailTransaksi.produk')->findOrFail($id);
+
+        // Ambil data detail transaksi terpisah untuk ditampilkan di tabel
+        $detailTransaksis = DetailTransaksi::with('produk')
+            ->where('id_transaksi', $transaksi->id_transaksi)
+            ->get();
+
+        return view('transactions.show', compact('transaksi', 'detailTransaksis'));
+    }
+
+
+
     public function store(Request $request)
     {
         DB::beginTransaction();
@@ -75,31 +90,25 @@ class TransaksiController extends Controller
             ]);
 
             // Simpan detail transaksi per produk
-            foreach ($request->id_produk as $index => $id_produk) {
-                $produk = Produk::findOrFail($id_produk);
+             foreach ($request->id_produk as $index => $id_produk) {
+              $produk = Produk::findOrFail($id_produk);
 
-                if ($produk->stok <= 0) {
-                    DB::rollBack();
-                    return back()->with('error', "Produk '{$produk->nama_produk}' stoknya sudah habis!");
-                }
+            // 🚫 Cek stok habis
+             if ($produk->stok <= 0) {
+              DB::rollBack();
+              return back()->with('error', "Produk '{$produk->nama_produk}' stoknya sudah habis!");
+              }
 
-                if ($request->jumlah[$index] > $produk->stok) {
-                    DB::rollBack();
-                    return back()->with('error', "Jumlah pembelian '{$produk->nama_produk}' melebihi stok ({$produk->stok})!");
-                }
+            // 🚫 Cek kalau beli lebih dari stok tersedia
+             if ($request->jumlah[$index] > $produk->stok) {
+              DB::rollBack();
+              return back()->with('error', "Jumlah pembelian '{$produk->nama_produk}' melebihi stok yang tersedia ({$produk->stok})!");
+              }
 
-                $subtotal = $produk->harga * $request->jumlah[$index];
-
-                DetailTransaksi::create([
-                    'id_transaksi' => $transaksi->id_transaksi,
-                    'id_produk' => $id_produk,
-                    'jumlah' => $request->jumlah[$index],
-                    'subtotal' => $subtotal,
-                ]);
-
-                $produk->stok -= $request->jumlah[$index];
-                $produk->save();
-            }
+    // ✅ Lolos -> kurangi stok
+    $produk->stok -= $request->jumlah[$index];
+    $produk->save();
+}
 
             // Buat kode struk otomatis
            // Buat struk otomatis
@@ -111,12 +120,12 @@ $idStruk = 'NSTR' . Carbon::now()->format('Ymd') . '-' . $countToday;
 Struk::create([
     'id_struk' => $idStruk,
     'id_transaksi' => $transaksi->id_transaksi,
-    'tanggal_cetak' => Carbon::now(),
+    'tanggal_cetak' => Carbon::now()->toDateTimeString(),
 ]);
 
 
             DB::commit();
-            return redirect()->route('struk.index')->with('success', 'Transaksi berhasil disimpan! Struk siap dicetak.');
+            return redirect()->route('transactions.index')->with('success', 'Transaksi berhasil disimpan! Struk siap dicetak.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage());

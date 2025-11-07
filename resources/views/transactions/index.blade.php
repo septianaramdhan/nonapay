@@ -17,6 +17,7 @@
                 <th>Metode Pembayaran</th>
                 <th>Uang Diterima</th>
                 <th>Kembalian</th>
+                <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -34,10 +35,13 @@
                     </td>
                     <td>Rp{{ number_format($transaksi->uang_diterima, 0, ',', '.') }}</td>
                     <td>Rp{{ number_format($transaksi->kembalian, 0, ',', '.') }}</td>
+                    <td>
+                        <a href="{{ route('transactions.show', $transaksi->id_transaksi) }}" class="btn-detail">Lihat Detail</a>
+                    </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="6" class="no-data">Belum ada transaksi.</td>
+                    <td colspan="7" class="no-data">Belum ada transaksi.</td>
                 </tr>
             @endforelse
         </tbody>
@@ -94,6 +98,20 @@
     border-radius: 8px;
     text-decoration: none;
     transition: 0.3s;
+}
+
+.btn-detail {
+    background-color: #3B2817;
+    color: #C9A646;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.btn-detail:hover {
+    opacity: 0.9;
 }
 
 .custom-table th {

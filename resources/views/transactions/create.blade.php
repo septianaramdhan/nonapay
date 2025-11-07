@@ -5,7 +5,7 @@
 <div class="table-section">
     <div class="table-header">
         <h4>Input Transaksi Baru</h4>
-        <a href="{{ route('transactions.index') }}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
+        <a href="{{ route('transactions.index') }}" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Lihat Data Transaksi</a>
     </div>
 
     <form action="{{ route('transactions.store') }}" method="POST" class="form-transaksi" id="transaksiForm">
@@ -77,6 +77,7 @@
 </div>
 
 <style>
+/* ========== STYLING TETEP SAMA ========== */
 .dashboard-header {
     position: fixed;
     top: 0;
@@ -232,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function hitungKembalian() {
         if (metode.value === 'cash') {
             const total = parseInt(totalInput.value.replace(/\D/g, '')) || 0;
-            const uang = parseInt(uangDiterima.value || 0);
+            const uang = parseFloat(uangDiterima.value || 0);
             const hasil = uang - total;
             kembalian.value = hasil >= 0 ? 'Rp' + hasil.toLocaleString('id-ID') : 'Rp0';
         } else {
@@ -268,10 +269,32 @@ document.addEventListener('DOMContentLoaded', () => {
         hitungKembalian();
     });
 
+    // ✅ Validasi panjang digit realtime + di submit
+    function cekPanjangDigit() {
+        const uangStr = uangDiterima.value.trim();
+        const bagianUtama = uangStr.split('.')[0].replace(/\D/g, '');
+        if (bagianUtama.length > 12) {
+            uangDiterima.setCustomValidity('Nominal uang diterima melebihi 12 digit! (max 12 digit sebelum koma)');
+        } else {
+            uangDiterima.setCustomValidity('');
+        }
+    }
+
+    // Cek setiap kali input berubah
+    uangDiterima.addEventListener('input', cekPanjangDigit);
+
     form.addEventListener('submit', (e) => {
         const total = parseInt(totalInput.value.replace(/\D/g, '')) || 0;
+
+        cekPanjangDigit(); // pastikan dicek lagi sebelum submit
+        if (!form.checkValidity()) {
+            alert(uangDiterima.validationMessage);
+            e.preventDefault();
+            return;
+        }
+
         if (metode.value === 'cash') {
-            const uang = parseInt(uangDiterima.value || 0);
+            const uang = parseFloat(uangDiterima.value || 0);
             if (uang < total) {
                 alert('Uang diterima kurang dari total transaksi!');
                 e.preventDefault();
@@ -280,4 +303,5 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+
 @endsection

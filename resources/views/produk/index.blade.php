@@ -23,9 +23,12 @@
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $produk->nama_produk }}</td>
                     <td>Rp{{ number_format($produk->harga, 0, ',', '.') }}</td>
-                    <td>@if ($produk->stok < 15) 
-                               <span style ="color: red; font-weight: bold;"> {{ $produk->stok }} <span style="font-size: 13px; font-weight: bold;">(Stok udah mau abis!)</span> </span> 
-                                   @else {{ $produk->stok }} @endif</td>
+                    <td>@if ($produk->stok == 0) 
+                               <span style ="color: red; font-weight: bold;"> {{ $produk->stok }} <span style="font-size: 13px; font-weight: bold;">(Stok habis!)</span> </span> 
+                                   @elseif ($produk->stok <= 15) 
+                               <span style ="color: orange; font-weight: bold;"> {{ $produk->stok }} <span style="font-size: 13px; font-weight: bold;">(Stok akan habis!)</span> </span> 
+                                   @else 
+                                   {{ $produk->stok }} @endif</td>
                     <td>
                         <a href="{{ route('produk.edit', $produk->id_produk) }}">
                             <button class="btn-edit"><i class="fa-solid fa-pen"></i> Edit</button>

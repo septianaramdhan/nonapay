@@ -9,8 +9,9 @@ class Struk extends Model
 {
     use HasFactory;
 
+    protected $table = 'struks';
     protected $primaryKey = 'id_struk';
-    public $incrementing = false;
+    public $incrementing = false; // biasanya id_struk seperti "NSTR20251107-1"
     protected $keyType = 'string';
 
     protected $fillable = [

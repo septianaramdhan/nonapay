@@ -33,6 +33,6 @@ class Transaksi extends Model
 
     public function struk()
     {
-        return $this->hasOne(Struk::class, 'id_transaksi', 'id_transaksi');
+        return $this->hasMany(Struk::class, 'id_transaksi', 'id_transaksi');
     }
 }
