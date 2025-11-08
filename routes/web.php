@@ -41,6 +41,9 @@ Route::get('/produk/search', function (Request $request) {
     return response()->json($produks);
 });
 
+Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->name('dashboard.filter');
+
+
 
 // struk (cetak struk)
 Route::get('/struk', [StrukController::class, 'index'])->name('struk.index');

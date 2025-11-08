@@ -3,104 +3,76 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Produk;
-use Illuminate\Support\Facades\Session;
+use Carbon\Carbon;
 
 class ProdukController extends Controller
 {
-    // 🧾 Menampilkan daftar produk
     public function index()
     {
         $produks = Produk::all();
-
-        return view('produk.index', [
-            'title' => 'Kelola Produk',
-            'produks' => $produks
-        ]);
+        return view('produk.index', compact('produks'));
     }
-    
 
-    // ➕ Form tambah produk
     public function create()
     {
-        return view('produk.create', [
-            'title' => 'Tambah Produk'
-        ]);
+        return view('produk.create');
     }
 
-   public function search(Request $request)
-{
-    $keyword = $request->get('q');
-    $produk = Produk::where('nama_produk', 'like', "%{$keyword}%")->limit(10)->get();
-
-    return response()->json($produk);
-}
-
-
-
-    // 💾 Simpan produk baru
-   public function store(Request $request)
+  // PRODUKCONTROLLER
+public function store(Request $request)
 {
     $request->validate([
         'nama_produk' => 'required|string|max:100',
-        'harga' => 'required|numeric|min:0',
-        'stok' => 'required|integer|min:0'
+        'harga' => 'required|numeric|min:1|max:500000',
+        'stok' => 'required|integer|min:1|max:1000',
+    ], [
+        'harga.max' => 'Ga realistis, dosa lho korupsi',
+        'stok.max' => 'Mana punya modal segitu',
     ]);
 
-    $idKasir = Session::get('kasir_id');
+  // 🩶 Generate ID produk otomatis
+    $tanggal = Carbon::now()->format('Ymd');
+    $count = \App\Models\Produk::whereDate('created_at', Carbon::today())->count() + 1;
+    $id_produk = 'PRD' . $tanggal . '-' . $count;
 
-    if (!$idKasir) {
-        return redirect()->back()->with('error', 'ID kasir tidak ditemukan di session!');
-    }
-
-    // Format ID produk: pd + idKasir (2 digit) + tanggal (ddmmyy)
-    $tanggal = now()->format('dmy'); // contoh: 031125 (3 Nov 2025)
-    $idProduk = 'pd' . str_pad($idKasir, 2, '0', STR_PAD_LEFT) . $tanggal;
-
-    Produk::create([
-        'id_produk' => $idProduk,
-        'id_kasir' => $idKasir,
+    // 🩶 Simpan produk baru
+    \App\Models\Produk::create([
+        'id_produk' => $id_produk,
         'nama_produk' => $request->nama_produk,
         'harga' => $request->harga,
         'stok' => $request->stok,
+        'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 6, // fallback kalau belum login
     ]);
 
-    return redirect()->route('produk.index')
-        ->with('success', 'Produk berhasil ditambahkan dengan ID: ' . $idProduk);
-}
-
-
-    // ✏️ Form edit produk
-  public function edit($id)
-{
-    $produk = Produk::findOrFail($id);
-    return view('produk.edit', compact('produk'));
+    return redirect()->route('produk.index')->with('success', "Produk berhasil ditambahkan dengan ID $id_produk!");
 }
 
 public function update(Request $request, $id)
 {
     $request->validate([
-        'nama_produk' => 'required|string|max:255',
-        'harga' => 'required|numeric|min:0',
-        'stok' => 'required|integer|min:0',
+        'nama_produk' => 'required|string|max:100',
+        'harga' => 'required|numeric|min:1|max:500000',
+        'stok' => 'required|integer|min:1|max:1000',
+    ], [
+        'harga.max' => 'Ga realistis, dosa lho korupsi 😭',
+        'stok.max' => 'Mana punya modal segitu 😭',
     ]);
 
-    $produk = Produk::findOrFail($id);
-    $produk->update([
-        'nama_produk' => $request->nama_produk,
-        'harga' => $request->harga,
-        'stok' => $request->stok,
-    ]);
-
-    return redirect()->route('produk.index')->with('success', 'Perubahan berhasil disimpan!');
+    $produk = \App\Models\Produk::findOrFail($id);
+    $produk->update($request->all());
+    return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui!');
 }
 
-    // 🗑️ Hapus produk
     public function destroy($id)
     {
-        Produk::where('id_produk', $id)->delete();
-        return redirect()->route('produk.index')
-            ->with('success', 'Produk berhasil dihapus!');
+        $produk = Produk::findOrFail($id);
+        $produk->delete();
+
+        return redirect()->route('produk.index')->with('success', 'Produk berhasil dihapus!');
     }
     
+
+
 }

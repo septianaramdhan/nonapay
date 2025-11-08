@@ -112,7 +112,7 @@ class TransaksiController extends Controller
         // Simpan transaksi utama
         $transaksi = Transaksi::create([
             'kode_transaksi' => $kodeTransaksi,
-            'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 1,
+            'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 6,
             'tanggal' => Carbon::now(),
             'total_harga' => $total_harga,
             'metode_pembayaran' => $request->metode_pembayaran,

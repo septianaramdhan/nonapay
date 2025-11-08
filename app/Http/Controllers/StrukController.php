@@ -11,7 +11,8 @@ class StrukController extends Controller
 {
     public function index()
     {
-        $struks = Struk::with('transaksi')->latest('tanggal_cetak')->get();
+        $struks = Struk::with('transaksi')->orderBy('tanggal_cetak', 'desc')->get();
+    
         return view('struk.index', compact('struks'));
     }
 public function print($id)

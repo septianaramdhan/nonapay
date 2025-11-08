@@ -97,14 +97,39 @@
             <input type="text" name="nama_produk" id="nama_produk" required>
 
             <label for="harga">Harga</label>
-            <input type="number" name="harga" id="harga" required>
+            <input type="number" name="harga" id="harga" required min="1" max="500000" maxlength="5">
 
             <label for="stok">Stok</label>
-            <input type="number" name="stok" id="stok" required>
+            <input type="number" name="stok" id="stok" required min="1" max="1000" maxlength="4">
 
             <button type="submit" class="btn-submit"><i class="fa-solid fa-plus"></i> Simpan</button>
             <a href="{{ route('produk.index') }}"><button type="button" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali</button></a>
         </form>
+       <script>
+document.addEventListener('DOMContentLoaded', () => {
+    const hargaInput = document.getElementById('harga');
+    const stokInput = document.getElementById('stok');
+
+    hargaInput.setAttribute('maxlength', 5);
+    stokInput.setAttribute('maxlength', 4);
+
+    hargaInput.addEventListener('input', () => {
+        let val = parseInt(hargaInput.value);
+        if (val > 500000) {
+            alert("😤 Ga realistis, dosa lho korupsi!");
+            hargaInput.value = 500000;
+        }
+    });
+
+    stokInput.addEventListener('input', () => {
+        let val = parseInt(stokInput.value);
+        if (val > 1000) {
+            alert("😤 Mana punya modal segitu!");
+            stokInput.value = 1000;
+        }
+    });
+});
+</script>
     </div>
 </div>
 @endsection

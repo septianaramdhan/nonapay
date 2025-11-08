@@ -10,12 +10,14 @@ class KasirSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('kasirs')->insert([
-            'nama_kasir' => 'Kasir Utama',
-            'username' => 'kasir',
-            'password' => Hash::make('12345'),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        DB::table('kasirs')->updateOrInsert(
+            ['username' => 'noneng'], // cek berdasarkan username
+            [
+                'nama_kasir' => 'Noneng',
+                'password' => Hash::make('12345'),
+                'updated_at' => now(),
+                'created_at' => now(),
+            ]
+        );
     }
 }
