@@ -207,6 +207,15 @@
         confirmButtonColor: '#3E2C1C'
       });
       @endif
+
+       @if(session('errorl'))
+      Swal.fire({
+        icon: 'error',
+        title: 'No & Nama tidak sesuai!',
+        text: '{{ session('errorl') }}',
+        confirmButtonColor: '#3E2C1C'
+      });
+      @endif
     });
   </script>
 

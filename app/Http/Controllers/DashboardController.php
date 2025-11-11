@@ -97,7 +97,7 @@ class DashboardController extends Controller
         $chartLabels[] = $date->format('d/m/Y');
         $chartData[] = Transaksi::whereDate('created_at', $date)->count();
         $filteredTransaksi = Transaksi::whereDate('created_at', $date)->get();
-        $title = 'Penjualan ' . $date->format('d/m/Y');
+        $title = 'Penjualan Tanggal ' . $date->format('d/m/Y');
     }
 
     return response()->json([

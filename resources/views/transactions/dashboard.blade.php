@@ -110,10 +110,19 @@ function fetchChartData(periode, start='') {
         salesChart.data.datasets[0].data = data.chartData;
 
         let maxVal = Math.max(...data.chartData);
-        if(periode==='harian') salesChart.options.scales.y.max = Math.max(maxVal,20);
-        else if(periode==='mingguan') salesChart.options.scales.y.max = Math.max(maxVal,50);
-        else if(periode==='bulanan') salesChart.options.scales.y.max = Math.max(maxVal,500);
-        else salesChart.options.scales.y.max = Math.max(maxVal);
+
+        // 🟡 atur sumbu Y mulai dari 1
+        salesChart.options.scales.y.min = 1;
+
+        if (periode === 'harian') 
+            salesChart.options.scales.y.max = Math.max(maxVal, 20);
+        else if (periode === 'mingguan') 
+            salesChart.options.scales.y.max = Math.max(maxVal, 50);
+        else if (periode === 'bulanan') 
+            salesChart.options.scales.y.max = Math.max(maxVal, 500);
+        else 
+            salesChart.options.scales.y.max = Math.max(maxVal, 20);
+
         salesChart.update();
 
         // 🟡 update donut chart & total pendapatan di semua filter
@@ -125,21 +134,38 @@ function fetchChartData(periode, start='') {
     .catch(err => console.error('Error fetch data:', err));
 }
 
+
 // === FILTER HANDLER ===
 filterSelect.addEventListener('change', () => {
-    const isCustom = filterSelect.value==='custom';
-    customInput.style.display = isCustom ? 'block':'none';
-    applyBtn.style.display = isCustom ? 'inline-block':'none';
+    const isCustom = filterSelect.value === 'custom';
+    customInput.style.display = isCustom ? 'block' : 'none';
+    applyBtn.style.display = isCustom ? 'inline-block' : 'none';
 
     let label = 'Penjualan ';
-    if(filterSelect.value==='harian') label+='(Harian)';
-    else if(filterSelect.value==='mingguan') label+='(Mingguan)';
-    else if(filterSelect.value==='bulanan') label+='(Bulanan)';
-    else label+='(Custom)';
+    if (filterSelect.value === 'harian') label += '(Harian)';
+    else if (filterSelect.value === 'mingguan') label += '(Mingguan)';
+    else if (filterSelect.value === 'bulanan') label += '(Bulanan)';
+    else label += 'Tanggal (Pilih tanggal)'; // 🟡 ubah dari "(Custom)" jadi ini
+
     chartTitle.textContent = label;
 
-    if(!isCustom) fetchChartData(filterSelect.value);
+    if (!isCustom) fetchChartData(filterSelect.value);
 });
+
+// 🟢 Tombol Terapkan khusus custom date
+applyBtn.addEventListener('click', () => {
+    const tanggal = customInput.value;
+    if (!tanggal) return alert('Pilih tanggal dulu 😭');
+
+    // ubah label chart sesuai tanggal yang dipilih
+    const tglFormat = new Date(tanggal).toLocaleDateString('id-ID', {
+        day: 'numeric', month: 'long', year: 'numeric'
+    });
+    chartTitle.textContent = `Penjualan Tanggal ${tglFormat}`;
+
+    fetchChartData('custom', tanggal);
+});
+
 
 applyBtn.addEventListener('click', ()=>{
     const tanggal = customInput.value;

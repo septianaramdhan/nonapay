@@ -45,7 +45,7 @@ class TransaksiController extends Controller
         return response()->json($produk);
     }
 
-    public function store(Request $request)
+   public function store(Request $request)
 {
     DB::beginTransaction();
 
@@ -57,12 +57,32 @@ class TransaksiController extends Controller
             'jumlah' => 'required|array',
             'jumlah.*' => 'integer|min:1',
             'metode_pembayaran' => 'required|in:cash,transfer',
-            'uang_diterima' => 'nullable|numeric|max:999999999999', // max 12 digit
+            'uang_diterima' => 'nullable|numeric|max:999999999999',
             'jenis_transfer' => 'nullable|string',
             'no_rekening' => 'nullable|string|max:20',
             'no_ewallet' => 'nullable|string|max:20',
             'atas_nama' => 'nullable|string|max:50',
         ]);
+
+       // ✅ Validasi ewallet: 1 nomor hanya boleh punya 1 nama di ewallet yang sama
+if ($request->metode_pembayaran === 'transfer' && in_array($request->jenis_transfer, ['DANA','OVO','GoPay','ShopeePay'])) {
+    if ($request->no_ewallet && $request->atas_nama) {
+        $transaksiSamaNo = \App\Models\Transaksi::where('tipe_transfer', 'ewallet')
+            ->where('nama_ewallet', $request->jenis_transfer)
+            ->where('nomor_ewallet', $request->no_ewallet)
+            ->first();
+
+        // Jika nomor sudah pernah digunakan di ewallet ini
+        if ($transaksiSamaNo) {
+            // tapi nama-nya beda → tolak
+            if (strtolower(trim($transaksiSamaNo->nama_pengirim)) !== strtolower(trim($request->atas_nama))) {
+                return back()->withInput()->with('errorl', 'Nomor e-wallet ' . $request->no_ewallet . ' sudah terdaftar di ' . $request->jenis_transfer . ' atas nama "' . $transaksiSamaNo->nama_pengirim . '". Tidak boleh digunakan dengan nama lain!');
+            }
+        }
+    }
+
+}
+
 
         // Hitung total harga
         $total_harga = 0;
