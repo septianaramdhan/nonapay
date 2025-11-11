@@ -81,6 +81,7 @@ class DashboardController extends Controller
         $title = 'Penjualan Bulan ' . $date->translatedFormat('F');
 
     } elseif ($periode === 'bulanan') {
+        Carbon::setlocale('id');
         // Bulanan (12 bulan dalam tahun berjalan)
         for($m=1; $m<=12; $m++){
             $monthStart = Carbon::create($date->year,$m,1)->startOfMonth();

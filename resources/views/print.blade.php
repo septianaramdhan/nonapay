@@ -23,7 +23,7 @@
     <div class="header">
         <img src="{{ asset('nonapay-removebg-preview - Copy.png') }}" alt="Logo"style="width:120px; height:120px; margin-bottom:1px;">
         <small>
-            Jl. Sukamanah Cibolang RT 02 RW 08 Kec. Katapang Desa Sukamukti<br>
+            Jl. Sukamanah Cibogo RT 02 RW 08 Kec. Katapang Desa Sukamukti<br>
             Kab. Bandung No.153<br>
             Telp: 085772206459
         </small>
