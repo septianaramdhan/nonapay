@@ -70,14 +70,34 @@ const pendapatanDisplay = document.getElementById('pendapatanDisplay');
 // === INIT CHARTS ===
 const salesChart = new Chart(salesCtx, {
     type: 'bar',
-    data: { labels: [], datasets: [{ label: 'Jumlah Transaksi', data: [], backgroundColor: '#C9A646', borderRadius: 6 }] },
-    options: { responsive:true, maintainAspectRatio:false, scales:{ y:{ beginAtZero:true, max:20 } } }
+    data: { 
+        labels: {!! $chartLabels !!}, 
+        datasets: [{ 
+            label: 'Jumlah Transaksi', 
+            data: {!! $chartData !!}, 
+            backgroundColor: '#C9A646', 
+            borderRadius: 6 
+        }] 
+    },
+    options: { 
+        responsive:true, 
+        maintainAspectRatio:false, 
+        scales:{ y:{ beginAtZero:true, max:{{ $scaleY }} } } 
+    }
 });
 
 const paymentChart = new Chart(paymentCtx, {
     type: 'doughnut',
-    data: { labels:['Tunai','Transfer'], datasets:[{ data:[0,0], backgroundColor:['#C9A646','#3E2C1C'] }] },
-    options:{ responsive:true, maintainAspectRatio:false, cutout:'70%', plugins:{ legend:{ position:'bottom' } } }
+    data: { 
+        labels:['Tunai','Transfer'], 
+        datasets:[{ data:[{{ $cash }}, {{ $transfer }}], backgroundColor:['#C9A646','#3E2C1C'] }] 
+    },
+    options:{ 
+        responsive:true, 
+        maintainAspectRatio:false, 
+        cutout:'70%', 
+        plugins:{ legend:{ position:'bottom' } } 
+    }
 });
 
 // === FETCH DATA FUNCTION ===
@@ -85,9 +105,10 @@ function fetchChartData(periode, start='') {
     fetch(`/dashboard/filter?periode=${periode}&start=${start}`)
     .then(res => res.json())
     .then(data => {
-        // update chart penjualan
+        // update bar chart (sales)
         salesChart.data.labels = data.chartLabels;
         salesChart.data.datasets[0].data = data.chartData;
+
         let maxVal = Math.max(...data.chartData);
         if(periode==='harian') salesChart.options.scales.y.max = Math.max(maxVal,20);
         else if(periode==='mingguan') salesChart.options.scales.y.max = Math.max(maxVal,50);
@@ -95,19 +116,14 @@ function fetchChartData(periode, start='') {
         else salesChart.options.scales.y.max = Math.max(maxVal);
         salesChart.update();
 
-        // update chart donut
+        // 🟡 update donut chart & total pendapatan di semua filter
         paymentChart.data.datasets[0].data = [data.cash, data.transfer];
         paymentChart.update();
 
-        // update total pendapatan
         pendapatanDisplay.textContent = 'Rp ' + new Intl.NumberFormat('id-ID').format(data.totalPendapatan);
-    });
+    })
+    .catch(err => console.error('Error fetch data:', err));
 }
-
-// === DEFAULT HARiAN ===
-document.addEventListener('DOMContentLoaded', () => {
-    fetchChartData('harian');
-});
 
 // === FILTER HANDLER ===
 filterSelect.addEventListener('change', () => {
@@ -115,7 +131,6 @@ filterSelect.addEventListener('change', () => {
     customInput.style.display = isCustom ? 'block':'none';
     applyBtn.style.display = isCustom ? 'inline-block':'none';
 
-    // update chart title
     let label = 'Penjualan ';
     if(filterSelect.value==='harian') label+='(Harian)';
     else if(filterSelect.value==='mingguan') label+='(Mingguan)';
@@ -126,7 +141,6 @@ filterSelect.addEventListener('change', () => {
     if(!isCustom) fetchChartData(filterSelect.value);
 });
 
-// === CUSTOM DATE HANDLER ===
 applyBtn.addEventListener('click', ()=>{
     const tanggal = customInput.value;
     if(!tanggal) return alert('Pilih tanggal dulu 😭');
