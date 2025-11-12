@@ -9,6 +9,10 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use App\Models\Produk;
 
+Route::get('/', function () {
+    return view('login');
+})->name('home');
+
 // login & logout
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
