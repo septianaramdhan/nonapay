@@ -20,6 +20,13 @@ class ProdukController extends Controller
         return view('produk.create');
     }
 
+    public function edit($id)
+{
+    $produk = Produk::findOrFail($id);
+    return view('produk.edit', compact('produk'));
+}
+
+
   // PRODUKCONTROLLER
 public function store(Request $request)
 {
@@ -51,13 +58,14 @@ public function store(Request $request)
 
 public function update(Request $request, $id)
 {
+    
     $request->validate([
         'nama_produk' => 'required|string|max:100',
         'harga' => 'required|numeric|min:1|max:500000',
         'stok' => 'required|integer|min:1|max:1000',
     ], [
-        'harga.max' => 'Ga realistis, dosa lho korupsi 😭',
-        'stok.max' => 'Mana punya modal segitu 😭',
+        'harga.max' => 'Ga realistis, dosa lho korupsi',
+        'stok.max' => 'Mana punya modal segitu',
     ]);
 
     $produk = \App\Models\Produk::findOrFail($id);
