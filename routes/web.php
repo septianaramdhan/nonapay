@@ -9,10 +9,6 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use App\Models\Produk;
 
-Route::get('/', function () {
-    return view('login');
-})->name('home');
-
 // login & logout
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login.form');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -37,6 +33,7 @@ Route::get('/transactions', [TransaksiController::class, 'index'])->name('transa
 Route::get('/transactions/create', [TransaksiController::class, 'create'])->name('transactions.create');
 Route::post('/transactions', [TransaksiController::class, 'store'])->name('transactions.store');
 Route::get('/transactions/{id}', [TransaksiController::class, 'show'])->name('transactions.show');
+
 
 // 🔍 route ajax untuk pencarian produk
 Route::get('/produk/search', function (Request $request) {

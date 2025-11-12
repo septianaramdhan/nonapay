@@ -132,7 +132,7 @@ if ($request->metode_pembayaran === 'transfer' && in_array($request->jenis_trans
         // Simpan transaksi utama
         $transaksi = Transaksi::create  ([
             'kode_transaksi' => $kodeTransaksi,
-            'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 6,
+            'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 1,
             'tanggal' => Carbon::now(),
             'total_harga' => $total_harga,
             'metode_pembayaran' => $request->metode_pembayaran,
@@ -148,29 +148,32 @@ if ($request->metode_pembayaran === 'transfer' && in_array($request->jenis_trans
 
         // Simpan detail transaksi & kurangi stok
         foreach ($request->id_produk as $index => $id_produk) {
-            $produk = Produk::findOrFail($id_produk);
+    $produk = Produk::findOrFail($id_produk);
 
-            if ($produk->stok <= 0) {
-                DB::rollBack();
-                return back()->with('error', "Produk '{$produk->nama_produk}' stoknya sudah habis!");
-            }
+    if ($produk->stok <= 0) {
+        DB::rollBack();
+        return back()->with('error', "Produk '{$produk->nama_produk}' stoknya sudah habis!");
+    }
 
-            if ($request->jumlah[$index] > $produk->stok) {
-                DB::rollBack();
-                return back()->with('error', "Jumlah pembelian '{$produk->nama_produk}' melebihi stok ({$produk->stok})!");
-            }
+    if ($request->jumlah[$index] > $produk->stok) {
+        DB::rollBack();
+        return back()->with('error', "Jumlah pembelian '{$produk->nama_produk}' melebihi stok ({$produk->stok})!");
+    }
 
-            // Kurangi stok
-            $produk->stok -= $request->jumlah[$index];
-            $produk->save();
+    // Kurangi stok
+    $produk->stok -= $request->jumlah[$index];
+    $produk->save();
 
-            DetailTransaksi::create([
-                'id_transaksi' => $transaksi->id_transaksi,
-                'id_produk' => $produk->id_produk,
-                'jumlah' => $request->jumlah[$index],
-                'subtotal' => $produk->harga * $request->jumlah[$index],
-            ]);
-        }
+    // 💾 Simpan detail transaksi dengan snapshot produk
+    DetailTransaksi::create([
+        'id_transaksi' => $transaksi->id_transaksi,
+        'id_produk' => $produk->id_produk,
+        'nama_produk' => $produk->nama_produk, // 🩶 snapshot nama produk
+        'harga_saat_transaksi' => $produk->harga, // 🩶 snapshot harga produk
+        'jumlah' => $request->jumlah[$index],
+        'subtotal' => $produk->harga * $request->jumlah[$index],
+    ]);
+}
 
         // Buat struk otomatis
         $countToday = Struk::whereDate('created_at', Carbon::today())->count() + 1;

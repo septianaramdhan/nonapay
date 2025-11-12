@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Produk;
 use Carbon\Carbon;
 
+
 class ProdukController extends Controller
 {
     public function index()
@@ -50,7 +51,7 @@ public function store(Request $request)
         'nama_produk' => $request->nama_produk,
         'harga' => $request->harga,
         'stok' => $request->stok,
-        'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 6, // fallback kalau belum login
+        'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 1, // fallback kalau belum login
     ]);
 
     return redirect()->route('produk.index')->with('success', "Produk berhasil ditambahkan dengan ID $id_produk!");

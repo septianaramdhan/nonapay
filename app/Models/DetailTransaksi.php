@@ -11,10 +11,13 @@ class DetailTransaksi extends Model
 
     protected $table = 'detail_transaksis';
     protected $primaryKey = 'id_detail';
+    public $incrementing = true;
 
     protected $fillable = [
         'id_transaksi',
         'id_produk',
+        'nama_produk', // 🩶 snapshot nama produk
+        'harga_saat_transaksi', // 🩶 snapshot harga produk
         'jumlah',
         'subtotal',
     ];
@@ -26,6 +29,7 @@ class DetailTransaksi extends Model
 
     public function produk()
     {
-        return $this->belongsTo(Produk::class, 'id_produk', 'id_produk');
+        // 🧊 Produk bisa aja null kalau dihapus permanen, jadi relasi optional
+        return $this->belongsTo(Produk::class, 'id_produk', 'id_produk')->withTrashed();
     }
 }
