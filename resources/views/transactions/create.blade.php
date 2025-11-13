@@ -285,7 +285,15 @@ select {
 
 .produk-dropdown div:hover {
     background-color: #f6f1e7;
+     opacity: 1;
+    transform: scale(1.1);
 }
+
+.produk-dropdown div i {
+    opacity: 0.8;
+    transition: 0.2s;
+}
+
 </style>
 
 <script>
@@ -304,53 +312,82 @@ document.addEventListener('DOMContentLoaded', () => {
     const ewalletField = document.getElementById('ewalletField');
 
     // 🔍 Setup pencarian produk
-    function setupSearch(row) {
-        const search = row.querySelector('.produk-search');
-        const dropdown = row.querySelector('.produk-dropdown');
-        const hiddenId = row.querySelector('.produk-id');
+ function setupSearch(row) {
+    const search = row.querySelector('.produk-search');
+    const dropdown = row.querySelector('.produk-dropdown');
+    const hiddenId = row.querySelector('.produk-id');
 
-        search.addEventListener('input', () => {
-            const keyword = search.value.trim();
-            if (keyword.length < 1) { dropdown.style.display = 'none'; return; }
+    // Render hasil produk
+    function renderDropdown(data) {
+        dropdown.innerHTML = '';
 
-            fetch(`/produk/search?q=${keyword}`)
-                .then(res => res.json())
-                .then(data => {
-                    dropdown.innerHTML = '';
-                    if (data.length === 0) { dropdown.style.display = 'none'; return; }
+        if (!data || data.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.textContent = 'Produk tidak ditemukan';
+            emptyMsg.style.color = '#999';
+            emptyMsg.style.textAlign = 'center';
+            emptyMsg.style.padding = '8px';
+            dropdown.appendChild(emptyMsg);
+            dropdown.style.display = 'block';
+            return;
+        }
 
-                    data.forEach(p => {
-                        const item = document.createElement('div');
-                        item.textContent = `${p.nama_produk} - Rp${parseInt(p.harga).toLocaleString('id-ID')}`;
-                        item.addEventListener('click', () => {
-                            search.value = p.nama_produk;
-                            search.dataset.harga = p.harga;
-                            hiddenId.value = p.id_produk;
-                            dropdown.style.display = 'none';
+        data.forEach(p => {
+            const item = document.createElement('div');
+            item.textContent = `${p.nama_produk} - Rp${parseInt(p.harga).toLocaleString('id-ID')}`;
+            item.style.padding = '8px';
+            item.style.cursor = 'pointer';
 
-                            // otomatis isi jumlah = 1
-                            const jumlahInput = row.querySelector('.jumlah-input');
-                            jumlahInput.value = 1;
+            item.addEventListener('click', () => {
+                search.value = p.nama_produk;
+                hiddenId.value = p.id_produk;
+                search.dataset.harga = p.harga;
+                dropdown.style.display = 'none';
 
-                            // hitung dan isi subtotal langsung
-                            const subtotalInput = row.querySelector('.subtotal');
-                            const subtotal = parseInt(p.harga);
-                            subtotalInput.value = 'Rp' + subtotal.toLocaleString('id-ID');
+                const jumlahInput = row.querySelector('.jumlah-input');
+                jumlahInput.value = 1;
 
-                            // update total keseluruhan
-                            hitungTotal();
-                        });
+                const subtotalInput = row.querySelector('.subtotal');
+                subtotalInput.value = 'Rp' + parseInt(p.harga).toLocaleString('id-ID');
 
-                        dropdown.appendChild(item);
-                    });
-                    dropdown.style.display = 'block';
-                });
+                hitungTotal();
+            });
+
+            dropdown.appendChild(item);
         });
 
-        document.addEventListener('click', (e) => {
-            if (!row.contains(e.target)) dropdown.style.display = 'none';
-        });
+        dropdown.style.display = 'block';
     }
+
+    // Ambil produk berdasarkan keyword
+    function fetchProduk(keyword = '') {
+        fetch(`/produk/search?q=${encodeURIComponent(keyword)}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log('🔍 Data produk:', data); // buat cek di console
+                renderDropdown(data);
+            })
+            .catch(err => console.error('Error ambil produk:', err));
+    }
+
+    // Ketika diketik → cari
+    search.addEventListener('input', () => {
+        const keyword = search.value.trim();
+        fetchProduk(keyword);
+    });
+
+    // Saat fokus → tampil semua produk
+    search.addEventListener('focus', () => {
+        fetchProduk('');
+    });
+
+    // Tutup dropdown kalau klik di luar
+    document.addEventListener('click', (e) => {
+        if (!row.contains(e.target)) dropdown.style.display = 'none';
+    });
+}
+
+
 
     // 💰 Hitung total dan subtotal otomatis
     function hitungTotal() {

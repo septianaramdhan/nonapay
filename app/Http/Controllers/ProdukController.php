@@ -27,7 +27,26 @@ class ProdukController extends Controller
     return view('produk.edit', compact('produk'));
 }
 
+public function search(Request $request)
+{
+    $query = $request->q;
 
+    $produks = Produk::query()
+        ->when($query, function ($q) use ($query) {
+            $q->where('nama_produk', 'like', "%{$query}%");
+        })
+        ->select('id_produk', 'nama_produk', 'harga')
+        ->limit(10)
+        ->get();
+
+    if ($produks->isEmpty()) {
+        return response()->json([
+            ['id_produk' => null, 'nama_produk' => 'Produk Tidak Ditemukan']
+        ]);
+    }
+
+    return response()->json($produks);
+}
   // PRODUKCONTROLLER
 public function store(Request $request)
 {
@@ -40,18 +59,16 @@ public function store(Request $request)
         'stok.max' => 'Mana punya modal segitu',
     ]);
 
-  // 🩶 Generate ID produk otomatis
     $tanggal = Carbon::now()->format('Ymd');
-    $count = \App\Models\Produk::whereDate('created_at', Carbon::today())->count() + 1;
+    $count = Produk::whereDate('created_at', Carbon::today())->count() + 1;
     $id_produk = 'PRD' . $tanggal . '-' . $count;
 
-    // 🩶 Simpan produk baru
-    \App\Models\Produk::create([
+    Produk::create([
         'id_produk' => $id_produk,
         'nama_produk' => $request->nama_produk,
         'harga' => $request->harga,
         'stok' => $request->stok,
-        'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 1, // fallback kalau belum login
+        'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 1,
     ]);
 
     return redirect()->route('produk.index')->with('success', "Produk berhasil ditambahkan dengan ID $id_produk!");

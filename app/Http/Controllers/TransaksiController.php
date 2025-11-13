@@ -35,16 +35,6 @@ class TransaksiController extends Controller
         return view('transactions.show', compact('transaksi', 'detailTransaksis'));
     }
 
-    public function searchProduk(Request $request)
-    {
-        $keyword = $request->get('q');
-        $produk = Produk::where('nama_produk', 'like', "%$keyword%")
-                        ->take(10)
-                        ->get(['id_produk', 'nama_produk', 'harga']);
-
-        return response()->json($produk);
-    }
-
    public function store(Request $request)
 {
     DB::beginTransaction();
