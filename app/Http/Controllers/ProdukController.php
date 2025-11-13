@@ -51,12 +51,13 @@ public function search(Request $request)
 public function store(Request $request)
 {
     $request->validate([
-        'nama_produk' => 'required|string|max:100',
+        'nama_produk' => 'required|string|max:100|unique:produks,nama_produk',
         'harga' => 'required|numeric|min:1|max:500000',
         'stok' => 'required|integer|min:1|max:1000',
     ], [
-        'harga.max' => 'Ga realistis, dosa lho korupsi',
-        'stok.max' => 'Mana punya modal segitu',
+        'nama_produk.unique' => 'Produk dengan nama ini sudah ada, barang tidak boleh duplikat',
+        'harga.max' => 'Max Harga 500.000',
+        'stok.max' => 'Max Stok 1000',
     ]);
 
     $tanggal = Carbon::now()->format('Ymd');
@@ -71,7 +72,8 @@ public function store(Request $request)
         'id_kasir' => Auth::check() ? Auth::user()->id_kasir : 1,
     ]);
 
-    return redirect()->route('produk.index')->with('success', "Produk berhasil ditambahkan dengan ID $id_produk!");
+    return redirect()->route('produk.index')
+        ->with('success', "Produk berhasil ditambahkan dengan ID $id_produk!");
 }
 
 public function update(Request $request, $id)
@@ -82,8 +84,8 @@ public function update(Request $request, $id)
         'harga' => 'required|numeric|min:1|max:500000',
         'stok' => 'required|integer|min:1|max:1000',
     ], [
-        'harga.max' => 'Ga realistis, dosa lho korupsi',
-        'stok.max' => 'Mana punya modal segitu',
+        'harga.max' => 'Max Harga 500.000',
+        'stok.max' => 'Max Stok 1000',
     ]);
 
     $produk = \App\Models\Produk::findOrFail($id);

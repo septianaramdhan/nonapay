@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->decimal('harga', 12, 2);
             $table->integer('stok')->default(0);
             $table->timestamps();
-            $table->softDeletes(); // 🩶 tambahin ini biar bisa soft delete
+            $table->softDeletes(); 
 
             $table->foreign('id_kasir')
                 ->references('id_kasir')
@@ -25,6 +25,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('produks'); // 🩶 ubah ke 'produks' (bukan 'products')
+        Schema::dropIfExists('produks'); 
     }
 };

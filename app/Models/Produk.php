@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; // 🩶 tambahin ini
+use Illuminate\Database\Eloquent\SoftDeletes; 
 
 class Produk extends Model
 {
-    use HasFactory, SoftDeletes; // 🩶 aktifkan soft delete
-
+    use HasFactory, SoftDeletes;
     protected $table = 'produks';
     protected $primaryKey = 'id_produk';
     public $incrementing = true; // tambahkan untuk id auto increment

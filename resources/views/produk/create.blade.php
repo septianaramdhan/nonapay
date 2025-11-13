@@ -91,6 +91,16 @@
 
 <div class="form-section">
     <div class="form-container">
+        @if ($errors->any())
+    <div style="background-color: #ffe6e6; color: #b30000; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+        <ul style="margin: 0; padding-left: 20px;">
+            @foreach ($errors->all() as $error)
+                <li>⚠️ {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
         <form action="{{ route('produk.store') }}" method="POST">
             @csrf
             <label for="nama_produk">Nama Produk</label>
