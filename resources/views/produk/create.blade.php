@@ -101,7 +101,11 @@
     </div>
 @endif
 
-        <form action="{{ route('produk.store') }}" method="POST">
+       <form action="{{ route('produk.store') }}" 
+      method="POST" 
+      enctype="multipart/form-data">
+
+
             @csrf
             <label for="nama_produk">Nama Produk</label>
             <input type="text" name="nama_produk" id="nama_produk" required>
@@ -112,9 +116,21 @@
             <label for="stok">Stok</label>
             <input type="number" name="stok" id="stok" required min="1" max="1000" maxlength="4">
 
+             <label>Gambar Produk</label>
+    <input type="file" name="gambar" accept="image/*" onchange="previewImage(event)">
+    <br>
+    <img id="preview" style="width: 120px; margin-top:10px; display:none;">
+
             <button type="submit" class="btn-submit"><i class="fa-solid fa-plus"></i> Simpan</button>
             <a href="{{ route('produk.index') }}"><button type="button" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali</button></a>
         </form>
+        <script>
+            function previewImage(event) {
+    let img = document.getElementById('preview');
+    img.src = URL.createObjectURL(event.target.files[0]);
+    img.style.display = 'block';
+}
+        </script>
        <script>
 document.addEventListener('DOMContentLoaded', () => {
     const hargaInput = document.getElementById('harga');
@@ -126,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hargaInput.addEventListener('input', () => {
         let val = parseInt(hargaInput.value);
         if (val > 500000) {
-            alert("😤 Ga realistis, dosa lho korupsi!");
+            alert("Max Harga 500.000!");
             hargaInput.value = 500000;
         }
     });
@@ -134,10 +150,11 @@ document.addEventListener('DOMContentLoaded', () => {
     stokInput.addEventListener('input', () => {
         let val = parseInt(stokInput.value);
         if (val > 1000) {
-            alert("😤 Mana punya modal segitu!");
+            alert("Max Stok 1000!");
             stokInput.value = 1000;
         }
     });
+
 });
 </script>
     </div>

@@ -13,6 +13,7 @@ return new class extends Migration {
             $table->string('nama_produk');
             $table->decimal('harga', 12, 2);
             $table->integer('stok')->default(0);
+            $table->string('gambar')->nullable();
             $table->timestamps();
             $table->softDeletes(); 
 

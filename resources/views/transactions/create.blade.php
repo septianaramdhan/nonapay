@@ -104,11 +104,6 @@
 
         </div>
 
-        <div class="form-group">
-            <label for="catatan">Catatan (opsional)</label>
-            <input type="text" name="catatan" id="catatan" placeholder="Masukkan catatan jika ada">
-        </div>
-
         <button type="submit" class="btn-submit">
             <i class="fa-solid fa-floppy-disk"></i> Simpan Transaksi
         </button>

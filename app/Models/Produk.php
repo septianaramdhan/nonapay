@@ -4,21 +4,27 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes; 
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Produk extends Model
 {
     use HasFactory, SoftDeletes;
+
     protected $table = 'produks';
     protected $primaryKey = 'id_produk';
-    public $incrementing = true; // tambahkan untuk id auto increment
+
+    public $incrementing = false; // WAJIB
+    protected $keyType = 'string'; // WAJIB
 
     protected $fillable = [
+        'id_produk',
         'id_kasir',
         'nama_produk',
         'harga',
         'stok',
+        'gambar',
     ];
+
 
     public function kasir()
     {

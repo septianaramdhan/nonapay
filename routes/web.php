@@ -31,7 +31,9 @@ Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->name('d
 Route::get('/produk/search', [ProdukController::class, 'search'])->name('produk.search');
 
 // Resource route produk
-Route::resource('produk', ProdukController::class);
+Route::resource('produk', ProdukController::class)->parameters([
+    'produk' => 'id_produk'
+]);
 
 // Kalau mau pastikan route manual tetap bisa
 Route::get('/produk/{id}/edit', [ProdukController::class, 'edit'])->name('produk.edit');

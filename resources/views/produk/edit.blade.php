@@ -2,7 +2,7 @@
 
 @section('content')
 <style>
-   .header-page content {
+   .header-page-content {
          margin-left: 230px;
     margin-top: 90px;
     padding: 30px 60px;
@@ -90,7 +90,10 @@
 
 <div class="form-section">
     <div class="form-container">
-        <form action="{{ route('produk.update', $produk->id_produk) }}" method="POST">
+       <form action="{{ route('produk.update', $produk->id_produk) }}" 
+      method="POST" 
+      enctype="multipart/form-data">
+
             @csrf
             @method('PUT')
 
@@ -105,16 +108,42 @@
             <label for="stok">Stok</label>
             <input type="number" name="stok" id="stok" 
                 value="{{ old('stok', $produk->stok) }}" required min="1" max="1000" maxlength="4">
+                <label for="gambar">Gambar Produk (opsional)</label>
+<input type="file" name="gambar" id="gambar" accept="image/*" onchange="previewEditGambar(this)">
 
-            <button type="submit" class="btn-submit">
-                <i class="fa-solid fa-check"></i> Simpan Perubahan
-            </button>
-            <a href="{{ route('produk.index') }}">
-                <button type="button" class="btn-back">
-                    <i class="fa-solid fa-arrow-left"></i> Kembali
-                </button>
-            </a>
+               <div style="margin-bottom: 20px;">
+    @if($produk->gambar)
+        <img src="{{ asset('storage/produk/'.$produk->gambar) }}" 
+             id="currentImage"
+             style="width:120px; margin-top:10px; border:1px solid #ddd;">
+    @endif
+
+    <img id="previewEdit" style="width: 120px; margin-top:10px; display:none;">
+</div>
+
+
+         <div style="display: flex; gap: 10px; margin-top: 20px;">
+
+    <button type="submit" class="btn-submit">
+        <i class="fa-solid fa-check"></i> Simpan Perubahan
+    </button>
+
+    <a href="{{ route('produk.index') }}">
+        <button type="button" class="btn-back">
+            <i class="fa-solid fa-arrow-left"></i> Kembali
+        </button>
+    </a>
+
+</div>
+
         </form>
+        <script>
+function previewEditGambar(input) {
+    let img = document.getElementById('previewEdit');
+    img.src = URL.createObjectURL(input.files[0]);
+    img.style.display = 'block';
+}
+</script>
         <script>
 document.addEventListener('DOMContentLoaded', () => {
     const hargaInput = document.getElementById('harga');
@@ -126,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hargaInput.addEventListener('input', () => {
         let val = parseInt(hargaInput.value);
         if (val > 500000) {
-            alert("😤 Ga realistis, dosa lho korupsi!");
+            alert("Max Harga 500.000!");
             hargaInput.value = 500000;
         }
     });
@@ -134,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
     stokInput.addEventListener('input', () => {
         let val = parseInt(stokInput.value);
         if (val > 1000) {
-            alert("😤 Mana punya modal segitu!");
+            alert("Max Stik 1000!");
             stokInput.value = 1000;
         }
     });
