@@ -4,7 +4,7 @@
     <div class="table-section">
             <div class="table-header">
                 <h4>Data Produk</h4>
-                <a href="{{ route('produk.create') }}" class="btn-add">+ Tambah Produk</a>
+                <a href="{{ route('produks.create') }}" class="btn-add">+ Tambah Produk</a>
             </div>
 
             <table class="custom-table">
@@ -30,10 +30,10 @@
                                     @else 
                                     {{ $produk->stok }} @endif</td>
                         <td>
-                            <a href="{{ route('produk.edit', $produk->id_produk) }}">
+                            <a href="{{ route('produks.edit', $produk->id_produk) }}">
                                 <button class="btn-edit"><i class="fa-solid fa-pen"></i> Edit</button>
                             </a>
-                            <form action="{{ route('produk.destroy', $produk->id_produk) }}" method="POST" style="display:inline-block;">
+                            <form action="{{ route('produks.destroy', $produk->id_produk) }}" method="POST" style="display:inline-block;">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn-delete" onclick="return confirm('Yakin mau hapus produk ini?')">
@@ -72,13 +72,14 @@
         <p><strong>Gambar:</strong></p>
 
         <!-- GAMBAR PRODUK -->
-        <img id="m-gambar" 
-             src="" 
-             alt="Gambar Produk" 
-             style="max-width:200px; display:none; border-radius:8px;">
+<!-- Preview gambar modal -->
+<img id="m-gambar"
+     style="width: 120px; margin-top:10px; border-radius:8px; display:none;">
 
-        <!-- JIKA GA ADA GAMBAR -->
-        <p id="no-gambar" style="display:none; color:#888;">Tidak ada gambar</p>
+<p id="no-gambar" style="display:none; color:#888; margin-top:10px;">
+    Tidak ada gambar
+</p>
+
 
         <!-- TOMBOL TUTUP -->
         <div style="text-align: right; margin-top: 20px;">
@@ -92,7 +93,7 @@
 
         </div>
     </div>
-    <STyle>
+    <style>
     .dashboard-header {
         position: fixed;
         top: 0;
@@ -274,36 +275,41 @@
 
 
 
-    </STyle>
+    </style>
     <script>
-    const baseUrl = "{{ asset('storage/produk') }}/";
-</script>
-    <script>
-    function openModal(id, nama, harga, stok, gambar) {
-        document.getElementById('m-id').innerText = id;
-        document.getElementById('m-nama').innerText = nama;
-        document.getElementById('m-harga').innerText = harga;
-        document.getElementById('m-stok').innerText = stok;
+    // lokasi folder gambar di public/produk
+    const baseUrl = "/produk/";
 
-        const img = document.getElementById('m-gambar');
-        const noImg = document.getElementById('no-gambar');
-
-        if (gambar && gambar !== '') {
-            img.src = baseUrl + gambar;
-            img.style.display = 'block';
-            noImg.style.display = 'none';
-        } else {
-            img.style.display = 'none';
-            noImg.style.display = 'block';
-        }
-
-        document.getElementById('detailModal').style.display = 'flex';
-    }
-
-    function closeModal() {
-        document.getElementById('detailModal').style.display = 'none';
-    }
     </script>
+
+   <script>
+function openModal(id, nama, harga, stok, gambar) {
+
+    document.getElementById('m-id').innerText = id;
+    document.getElementById('m-nama').innerText = nama;
+    document.getElementById('m-harga').innerText = harga;
+    document.getElementById('m-stok').innerText = stok;
+
+    const img = document.getElementById('m-gambar');
+    const noImg = document.getElementById('no-gambar');
+
+    if (gambar && gambar !== '') {
+        img.src = baseUrl + gambar;
+        img.style.display = 'block';
+        noImg.style.display = 'none';
+    } else {
+        img.style.display = 'none';
+        noImg.style.display = 'block';
+    }
+
+    document.getElementById('detailModal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('detailModal').style.display = 'none';
+}
+</script>
+
 
 
     @endsection

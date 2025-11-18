@@ -136,7 +136,7 @@
         <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">
           <i class="fa-solid fa-house"></i> Dashboard
         </a>
-        <a href="{{ route('produk.index') }}" class="{{ request()->routeIs('produk.*') ? 'active' : '' }}">
+        <a href="{{ route('produks.index') }}" class="{{ request()->routeIs('produk.*') ? 'active' : '' }}">
   <i class="fa-solid fa-box"></i> Kelola Produk
 </a>
 <a href="{{ route('transactions.create') }}" class="{{ request()->routeIs('transactions.*') ? 'active' : '' }}">

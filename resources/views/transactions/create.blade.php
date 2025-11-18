@@ -333,20 +333,30 @@ document.addEventListener('DOMContentLoaded', () => {
             item.style.padding = '8px';
             item.style.cursor = 'pointer';
 
-            item.addEventListener('click', () => {
-                search.value = p.nama_produk;
-                hiddenId.value = p.id_produk;
-                search.dataset.harga = p.harga;
-                dropdown.style.display = 'none';
+           item.addEventListener('click', () => {
+           const allIds = document.querySelectorAll('.produk-id');
+           for (let id of allIds) {
+           if (id !== hiddenId && id.value == p.id_produk) {
+           alert("Produk ini sudah dipilih! Tidak bisa tambah duplikat.");
+           dropdown.style.display = 'none';
+           return;
+        }
+    }
 
-                const jumlahInput = row.querySelector('.jumlah-input');
-                jumlahInput.value = 1;
+    // Kalau aman → set data
+    search.value = p.nama_produk;
+    hiddenId.value = p.id_produk;
+    search.dataset.harga = p.harga;
+    dropdown.style.display = 'none';
 
-                const subtotalInput = row.querySelector('.subtotal');
-                subtotalInput.value = 'Rp' + parseInt(p.harga).toLocaleString('id-ID');
+    const jumlahInput = row.querySelector('.jumlah-input');
+    jumlahInput.value = 1;
 
-                hitungTotal();
-            });
+    const subtotalInput = row.querySelector('.subtotal');
+    subtotalInput.value = 'Rp' + parseInt(p.harga).toLocaleString('id-ID');
+
+    hitungTotal();
+});
 
             dropdown.appendChild(item);
         });

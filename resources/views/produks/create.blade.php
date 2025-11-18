@@ -2,7 +2,8 @@
 
 @section('content')
 <style>
-   .header-page-content {
+
+      .header-page content {
          margin-left: 230px;
     margin-top: 90px;
     padding: 30px 60px;
@@ -86,65 +87,53 @@
     }
 </style>
 
-<div class="header-page">EDIT PRODUK</div>
+<div class="header-page">TAMBAH PRODUK</div>
 
 <div class="form-section">
     <div class="form-container">
-       <form action="{{ route('produk.update', $produk->id_produk) }}" 
+        @if ($errors->any())
+    <div style="background-color: #ffe6e6; color: #b30000; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+        <ul style="margin: 0; padding-left: 20px;">
+            @foreach ($errors->all() as $error)
+                <li>⚠️ {{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
+       <form action="{{ route('produks.store') }}" 
       method="POST" 
       enctype="multipart/form-data">
 
-            @csrf
-            @method('PUT')
 
+            @csrf
             <label for="nama_produk">Nama Produk</label>
-            <input type="text" name="nama_produk" id="nama_produk" 
-                value="{{ old('nama_produk', $produk->nama_produk) }}" required>
+            <input type="text" name="nama_produk" id="nama_produk" required>
 
             <label for="harga">Harga</label>
-            <input type="number" name="harga" id="harga" 
-                value="{{ old('harga', $produk->harga) }}" required min="1" max="500000" maxlength="5">
+            <input type="number" name="harga" id="harga" required min="1" max="500000" maxlength="5">
 
             <label for="stok">Stok</label>
-            <input type="number" name="stok" id="stok" 
-                value="{{ old('stok', $produk->stok) }}" required min="1" max="1000" maxlength="4">
-                <label for="gambar">Gambar Produk (opsional)</label>
-<input type="file" name="gambar" id="gambar" accept="image/*" onchange="previewEditGambar(this)">
+            <input type="number" name="stok" id="stok" required min="1" max="1000" maxlength="4">
 
-               <div style="margin-bottom: 20px;">
-    @if($produk->gambar)
-        <img src="{{ asset('storage/produk/'.$produk->gambar) }}" 
-             id="currentImage"
-             style="width:120px; margin-top:10px; border:1px solid #ddd;">
-    @endif
-
-    <img id="previewEdit" style="width: 120px; margin-top:10px; display:none;">
-</div>
+             <label>Gambar Produk</label>
+                <input type="file" name="gambar" accept="image/*" onchange="previewImage(event)" required>
+                <br>
+                <img id="preview" style="width: 120px; margin-top:10px; display:none;">
 
 
-         <div style="display: flex; gap: 10px; margin-top: 20px;">
-
-    <button type="submit" class="btn-submit">
-        <i class="fa-solid fa-check"></i> Simpan Perubahan
-    </button>
-
-    <a href="{{ route('produk.index') }}">
-        <button type="button" class="btn-back">
-            <i class="fa-solid fa-arrow-left"></i> Kembali
-        </button>
-    </a>
-
-</div>
-
+            <button type="submit" class="btn-submit"><i class="fa-solid fa-plus"></i> Simpan</button>
+            <a href="{{ route('produks.index') }}"><button type="button" class="btn-back"><i class="fa-solid fa-arrow-left"></i> Kembali</button></a>
         </form>
         <script>
-function previewEditGambar(input) {
-    let img = document.getElementById('previewEdit');
-    img.src = URL.createObjectURL(input.files[0]);
+function previewImage(event) {
+    const img = document.getElementById('preview');
+    img.src = URL.createObjectURL(event.target.files[0]);
     img.style.display = 'block';
 }
 </script>
-        <script>
+
+       <script>
 document.addEventListener('DOMContentLoaded', () => {
     const hargaInput = document.getElementById('harga');
     const stokInput = document.getElementById('stok');
@@ -163,12 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
     stokInput.addEventListener('input', () => {
         let val = parseInt(stokInput.value);
         if (val > 1000) {
-            alert("Max Stik 1000!");
+            alert("Max Stok 1000!");
             stokInput.value = 1000;
         }
     });
+
 });
-</script>   
+</script>
     </div>
 </div>
 @endsection

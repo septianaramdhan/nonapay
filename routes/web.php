@@ -6,8 +6,6 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\StrukController;
 use App\Http\Controllers\AuthController;
-use Illuminate\Http\Request;
-use App\Models\Produk;
 
 // ======================
 // 🔐 LOGIN & LOGOUT
@@ -26,19 +24,18 @@ Route::get('/dashboard/filter', [DashboardController::class, 'filter'])->name('d
 // 📦 PRODUK
 // ======================
 
-
-// 🔍 Pencarian produk (HARUS di atas resource)
+// 🔍 Route Pencarian produk (HARUS match dengan fetch(`/produk/search`))
 Route::get('/produk/search', [ProdukController::class, 'search'])->name('produk.search');
 
 // Resource route produk
-Route::resource('produk', ProdukController::class)->parameters([
-    'produk' => 'id_produk'
+Route::resource('produks', ProdukController::class)->parameters([
+    'produks' => 'id_produk'
 ]);
 
-// Kalau mau pastikan route manual tetap bisa
-Route::get('/produk/{id}/edit', [ProdukController::class, 'edit'])->name('produk.edit');
-Route::put('/produk/{id}', [ProdukController::class, 'update'])->name('produk.update');
-Route::delete('/produk/{id}', [ProdukController::class, 'destroy'])->name('produk.destroy');
+// Tambahan manual route (opsional, biar pasti aman)
+Route::get('/produks/{id}/edit', [ProdukController::class, 'edit'])->name('produks.edit');
+Route::put('/produks/{id}', [ProdukController::class, 'update'])->name('produks.update');
+Route::delete('/produks/{id}', [ProdukController::class, 'destroy'])->name('produks.destroy');
 
 // ======================
 // 💰 TRANSAKSI
