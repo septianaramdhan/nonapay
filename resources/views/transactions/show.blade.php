@@ -65,8 +65,8 @@
             @forelse ($detailTransaksis as $index => $detail)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $detail->produk->nama_produk ?? 'Produk tidak ditemukan' }}</td>
-                    <td>Rp{{ number_format($detail->produk->harga ?? 0, 0, ',', '.') }}</td>
+                    <td>{{ $detail->nama_produk ?? $detail->produk->nama_produk }}</td>
+                    <td>Rp{{ number_format($detail->harga_saat_transaksi ?? ($detail->produk->harga ?? 0), 0, ',', '.') }}</td>
                     <td>{{ $detail->jumlah }}</td>
                     <td>Rp{{ number_format($detail->subtotal, 0, ',', '.') }}</td>
                 </tr>

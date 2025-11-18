@@ -21,7 +21,7 @@
 <body onload="window.print()">
 
     <div class="header">
-        <img src="{{ asset('nonapay-removebg-preview - Copy.png') }}" alt="Logo"style="width:120px; height:120px; margin-bottom:1px;">
+        <img src="{{ asset('nonapay-removebg-preview - Copy.png') }}" alt="Logo" style="width:120px; height:120px; margin-bottom:1px;">
         <small>
             Jl. Sukamanah Cibogo RT 02 RW 08 Kec. Katapang Desa Sukamukti<br>
             Kab. Bandung No.153<br>
@@ -44,9 +44,19 @@
     <table>
         @foreach ($detailTransaksis as $index => $detail)
         <tr>
-            <td>{{ $index + 1 }}. {{ $detail->produk->nama_produk }}</td>
+            <td>
+                {{ $index + 1 }}. 
+                {{ 
+                    $detail->nama_produk 
+                    ?? ($detail->produk->nama_produk ?? 'Produk tidak ditemukan') 
+                }}
+            </td>
             <td style="text-align: right;">
-                {{ $detail->jumlah }} x Rp{{ number_format($detail->produk->harga, 0, ',', '.') }}
+                {{ $detail->jumlah }} x 
+                Rp{{ number_format(
+                        $detail->harga_saat_transaksi 
+                        ?? ($detail->produk->harga ?? 0), 
+                0, ',', '.') }}
             </td>
         </tr>
         @endforeach
